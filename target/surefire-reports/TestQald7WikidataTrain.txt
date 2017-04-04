@@ -1,0 +1,16 @@
+-------------------------------------------------------------------------------
+Test set: TestQald7WikidataTrain
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 12.172 sec <<< FAILURE!
+parse(TestQald7WikidataTrain)  Time elapsed: 11.895 sec  <<< ERROR!
+java.lang.NullPointerException: null
+	at com.mycompany.sntl.SNTL$1.visit(SNTL.java:82)
+	at org.apache.jena.sparql.syntax.ElementWalker$Walker.visit(ElementWalker.java:212)
+	at org.apache.jena.sparql.syntax.ElementPathBlock.visit(ElementPathBlock.java:89)
+	at org.apache.jena.sparql.syntax.ElementWalker$Walker.visit(ElementWalker.java:127)
+	at org.apache.jena.sparql.syntax.ElementGroup.visit(ElementGroup.java:120)
+	at org.apache.jena.sparql.syntax.ElementWalker.walk(ElementWalker.java:39)
+	at org.apache.jena.sparql.syntax.ElementWalker.walk(ElementWalker.java:33)
+	at com.mycompany.sntl.SNTL.sntl(SNTL.java:65)
+	at TestQald7WikidataTrain.parse(TestQald7WikidataTrain.java:62)
+

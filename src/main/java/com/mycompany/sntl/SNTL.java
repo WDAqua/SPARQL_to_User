@@ -6,8 +6,11 @@
 package com.mycompany.sntl;
 
 
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import javax.xml.parsers.ParserConfigurationException;
 import org.apache.jena.graph.Node;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
@@ -20,6 +23,7 @@ import static org.apache.jena.query.ResultSetFactory.result;
 
 import org.apache.jena.query.Syntax;
 import org.apache.jena.sparql.core.TriplePath;
+import org.apache.jena.sparql.lang.arq.ParseException;
 import org.apache.jena.sparql.syntax.ElementData;
 import org.apache.jena.sparql.syntax.ElementPathBlock;
 import org.apache.jena.sparql.syntax.ElementVisitorBase;
@@ -28,6 +32,12 @@ import org.apache.jena.sparql.util.StringUtils;
 import static org.apache.jena.sparql.vocabulary.TestManifest.result;
 import static org.apache.jena.tdb.lib.NodeLib.nodes;
 import static org.apache.jena.vocabulary.TestManifest.result;
+import org.apache.maven.plugins.annotations.Execute;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.w3c.dom.DOMException;
+import org.xml.sax.SAXException;
 
 
 
@@ -36,16 +46,19 @@ import static org.apache.jena.vocabulary.TestManifest.result;
  * @author youssef
  */
 public class SNTL {
-        String strq  ; 
+     String strq  ; 
      String resulte;
      String pays;
-    public void sntl (){
+     
+
+    
+public String sntl (String strq){
         // q;
    
        
-       strq= "SELECT DISTINCT ?x WHERE { "
-               +"<http://www.wikidata.org/entity/Q91> <http://www.wikidata.org/prop/direct/P61> ?x . "
-               +"} limit 1000";
+//       strq= "SELECT DISTINCT ?x WHERE { "
+//               +"<http://www.wikidata.org/entity/Q91> <http://www.wikidata.org/prop/direct/P61> ?x . "
+//               +"} limit 1000";
 
        Query q = QueryFactory.create(strq, Syntax.syntaxARQ) ;
 
@@ -68,8 +81,7 @@ public class SNTL {
 //System.out.println(triple.getSubject());
             resulte = triple.getPredicate().toString();
             pays= triple.getSubject().toString();
-            System.out.println("****************************************************");
-                                    System.out.println(resulte);
+//                                    System.out.println(resulte);
 //                                System.out.println(pays);
                                 }
                                 int k=1;
@@ -111,11 +123,10 @@ public class SNTL {
        String  predicat= getLabel(strPredicat);
        String resultate = predicat+"/"+subject ;
         System.out.println(resultate);
+        return resultate;
     }
-    
-    
-    
-    public String getLabel (String s){
+ 
+public String getLabel (String s){
    String lab = null;     
          String res = 
  "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>"
@@ -125,7 +136,7 @@ public class SNTL {
 +"} limit 20 ";
     
 
-       System.out.println(res);
+//       System.out.println(res);
          
 Query query1 = QueryFactory.create(res);
 QueryExecution qExe = QueryExecutionFactory.sparqlService("https://query.wikidata.org/sparql", query1 );
@@ -140,7 +151,7 @@ while (result.hasNext()){
    
     }
     
-    public String strTo(String str2){
+public String strTo(String str2){
         return "<"+str2.replaceAll("/prop/direct", "/entity")+">";
     }
     
@@ -149,6 +160,16 @@ while (result.hasNext()){
     
     public static void main(String[] args) {
        SNTL s= new SNTL();
-       s.sntl();
+//      
+//       String quest="Who was the doctoral supervisor of Albert Einstein?";
+//       
+////       String requ=s.parse1(quest);
+//       String reponse = s.sntl(requ);
+// System.out.println("****************************************************");
+//
+//       System.out.println("The question is : "+quest);
+//       System.out.println("the sparql is : "+requ);
+//       System.out.println("And this is the title of the response : "+reponse);
+//       
     }
 }
