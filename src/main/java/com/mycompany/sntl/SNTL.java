@@ -80,7 +80,6 @@ public class SNTL {
 
                         } else {
                             triple.getPath();
-                            System.out.println("it's not a triple");
                         }
 
                     }
@@ -98,6 +97,8 @@ public class SNTL {
             String subject = getLabel(strSubject);
             String predicat = getLabel(strPredicat);
             String resultate = predicat + "/" + subject;
+            System.out.println("The Title of the query is : ");
+            System.out.println(resultate);
 
             return resultate;
         } else {
@@ -139,17 +140,6 @@ public class SNTL {
         boolean isSel = qu.isSelectType();
         boolean hasAggre = !(qu.hasAggregators());
 
-        if (qu.isSelectType()) {
-            System.out.println("SELECT OK !!");
-        } else {
-            System.out.println("SELECT NO !! ");
-        }
-        if (!(qu.hasAggregators())) {
-            System.out.println("AGGREGATORS OK !!");
-        } else {
-            System.out.println("AGGREGATORS NO !! ");
-        }
-
         ElementWalker.walk(qu.getQueryPattern(),
                 // For each element...
                 new ElementVisitorBase() {
@@ -166,27 +156,22 @@ public class SNTL {
                     if (triple.isTriple()) {
 
                         if ((triple.getSubject().isURI()) && (triple.getPredicate().isURI() && (triple.getObject().isVariable()))) {
-                            System.out.println("CONFORM OK !!");
                             isConform = true;
 
                         } else {
-                            System.out.println("CONFORM NO !!");
-                        }
+                            isConform = false;
+                          }
 
                         c++;
-                    } else {
-                        System.out.println("it's not a triple");
-                    }
-                    if (c == 1) {
-                        System.out.println("COMPTE 1 OK !!");
+                    } 
+                  
+                }
+                     if (c == 1) {
                         isOneTrip = true;
                     } else {
-                        System.out.println("COMPTE 1 NO !!");
                         isOneTrip = false;
 
                     }
-                }
-
             }
 
             @Override
