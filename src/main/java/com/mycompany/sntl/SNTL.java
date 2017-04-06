@@ -6,10 +6,12 @@
 package com.mycompany.sntl;
 
 
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.ListIterator;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.jena.graph.Node;
 import org.apache.jena.query.Query;
@@ -17,10 +19,8 @@ import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.ResultSet;
-
 import static org.apache.jena.query.ResultSetFactory.result;
 import static org.apache.jena.query.ResultSetFactory.result;
-
 import org.apache.jena.query.Syntax;
 import org.apache.jena.sparql.core.TriplePath;
 import org.apache.jena.sparql.lang.arq.ParseException;
@@ -46,130 +46,162 @@ import org.xml.sax.SAXException;
  * @author youssef
  */
 public class SNTL {
-     String strq  ; 
-     String resulte;
-     String pays;
-     
-
-    
-public String sntl (String strq){
-        // q;
    
-       
-//       strq= "SELECT DISTINCT ?x WHERE { "
-//               +"<http://www.wikidata.org/entity/Q91> <http://www.wikidata.org/prop/direct/P61> ?x . "
-//               +"} limit 1000";
+    String strq;
+    String resulte;
+    String predicate;
+    boolean isOneTrip;
+    boolean isConform;
+    
 
-       Query q = QueryFactory.create(strq, Syntax.syntaxARQ) ;
+    public String sntl(String strq) {
 
-         ElementWalker.walk(q.getQueryPattern(),
-                        // For each element...
-                        new ElementVisitorBase() {
-                            // ...when it's a block of triples...
-                            @Override
-                            public void visit(ElementPathBlock el) {
-                                //System.out.println("Here");
-                                // ...go through all the triples...
-                                Iterator<TriplePath> triples = el.patternElts();
-                                ArrayList<Node> nodes = new ArrayList<Node>();
-                                while (triples.hasNext()) {
-                                    // ...and grab the subject
-                                    TriplePath triple = triples.next();
-                                    nodes.add(triple.getSubject());
-                                    nodes.add(triple.getPredicate());
-                                    nodes.add(triple.getObject());
-//System.out.println(triple.getSubject());
-            resulte = triple.getPredicate().toString();
-            pays= triple.getSubject().toString();
-//                                    System.out.println(resulte);
-//                                System.out.println(pays);
-                                }
-                                int k=1;
-                                StringUtils util=new StringUtils();
-                                for (Node n : nodes){
-                                    if (n.isVariable()){
-//                                        feature.put("r"+k+"-var",1.0);
-                                        k++;
-                                    } else {
-//                                        int i=m.getIndex(n.toString());
-//                                        int sim=util.getLevenshteinDistance(m.getText(i).toLowerCase(),m.getLex(i).toLowerCase());
-//                                        feature.put("r"+k+"-sim",(double)sim);
-//                                        feature.put("r"+k+"-rel",(double)m.getRel(i));
-                                        //feature.put("r"+k+"-type",m.getType(i));
-                                        k++;
-                                    }
-                                }
-                                 
-                            }
-                         
-                            
+        Query q = QueryFactory.create(strq, Syntax.syntaxARQ);
+      
+        if (isThereOk(q)) {
+            ElementWalker.walk(q.getQueryPattern(),
+                    // For each element...
+                    new ElementVisitorBase() {
+                // ...when it's a block of triples...
+                @Override
+                public void visit(ElementPathBlock el) {
+                    // ...go through all the triples...
 
-                            
-                            @Override
-                            public void visit(ElementData el) {
-                                StringUtils util=new StringUtils();
-//                                feature.put("linking",1.0);
-//                                int i=m.getIndex(el.getRows().get(0).get(el.getVars().get(0)).toString());
-//                                int sim=util.getLevenshteinDistance(m.getText(i).toLowerCase(),m.getLex(i).toLowerCase());
-//                                feature.put("r"+6+"-sim",(double)sim);
-//                                feature.put("r"+6+"-rel",(double)m.getRel(i));
-                                //feature.put("r"+7+"-type",m.getType(i));
-                                 
-                            }
-                       });
-       String strSubject=strTo(resulte);
-       String strPredicat=strTo(pays);
-       String  subject= getLabel(strSubject);
-       String  predicat= getLabel(strPredicat);
-       String resultate = predicat+"/"+subject ;
-        System.out.println(resultate);
-        return resultate;
+                    ListIterator<TriplePath> triples = el.getPattern().iterator();
+                    ArrayList<Node> nodes = new ArrayList<Node>();
+
+                    while (triples.hasNext()) {
+                        // ...and grab the subject
+                        TriplePath triple = triples.next();
+                        if (triple.isTriple()) {
+                       
+                                resulte=triple.getSubject().toString();
+                                predicate=triple.getPredicate().toString();
+
+                        } else {
+                            triple.getPath();
+                            System.out.println("it's not a triple");
+                        }
+
+                    }
+
+                }
+
+                @Override
+                public void visit(ElementData el) {
+                    StringUtils util = new StringUtils();
+
+                }
+            });
+            String strSubject = strTo(resulte);
+            String strPredicat = strTo(predicate);
+            String subject = getLabel(strSubject);
+            String predicat = getLabel(strPredicat);
+            String resultate = predicat + "/" + subject;
+
+            return resultate;
+        } else {
+            System.out.println("The query is not OK ");
+            return null;
+        }
     }
- 
-public String getLabel (String s){
-   String lab = null;     
-         String res = 
- "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>"
-+" SELECT DISTINCT ?o WHERE { "
-+" "+s+" rdfs:label ?o ."
-+"  FILTER( lang(?o)=\"en\")"
-+"} limit 20 ";
-    
 
-//       System.out.println(res);
-         
-Query query1 = QueryFactory.create(res);
-QueryExecution qExe = QueryExecutionFactory.sparqlService("https://query.wikidata.org/sparql", query1 );
-ResultSet result;
-result = qExe.execSelect();
-;
-while (result.hasNext()){
- lab = result.next().getLiteral("o").getLexicalForm().toString();
-//  System.out.println(lab);
-}
-            return lab;
-   
+    public String getLabel(String s) {
+        String lab = null;
+        String res
+                = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>"
+                + " SELECT DISTINCT ?o WHERE { "
+                + " " + s + " rdfs:label ?o ."
+                + "  FILTER( lang(?o)=\"en\")"
+                + "} limit 20 ";
+
+        //       System.out.println(res);
+        Query query1 = QueryFactory.create(res);
+        QueryExecution qExe = QueryExecutionFactory.sparqlService("https://query.wikidata.org/sparql", query1);
+        ResultSet result;
+        result = qExe.execSelect();
+        ;
+        while (result.hasNext()) {
+            lab = result.next().getLiteral("o").getLexicalForm().toString();
+            //  System.out.println(lab);
+        }
+        return lab;
+
     }
-    
-public String strTo(String str2){
-        return "<"+str2.replaceAll("/prop/direct", "/entity")+">";
+
+    public String strTo(String str2) {
+        return "<" + str2.replaceAll("/prop/direct", "/entity") + ">";
     }
-    
-    
-    
-    
+  
+    public boolean isThereOk(Query qu) {
+
+        boolean res;
+        boolean isSel = qu.isSelectType();
+        boolean hasAggre = !(qu.hasAggregators());
+
+        if (qu.isSelectType()) {
+            System.out.println("SELECT OK !!");
+        } else {
+            System.out.println("SELECT NO !! ");
+        }
+        if (!(qu.hasAggregators())) {
+            System.out.println("AGGREGATORS OK !!");
+        } else {
+            System.out.println("AGGREGATORS NO !! ");
+        }
+
+        ElementWalker.walk(qu.getQueryPattern(),
+                // For each element...
+                new ElementVisitorBase() {
+            // ...when it's a block of triples...
+            @Override
+            public void visit(ElementPathBlock el) {
+                // ...go through all the triples...
+                ListIterator<TriplePath> triples = el.getPattern().iterator();
+                ArrayList<Node> nodes = new ArrayList<Node>();
+                int c = 0;
+                while (triples.hasNext()) {
+                    // ...and grab the subject
+                    TriplePath triple = triples.next();
+                    if (triple.isTriple()) {
+
+                        if ((triple.getSubject().isURI()) && (triple.getPredicate().isURI() && (triple.getObject().isVariable()))) {
+                            System.out.println("CONFORM OK !!");
+                            isConform = true;
+
+                        } else {
+                            System.out.println("CONFORM NO !!");
+                        }
+
+                        c++;
+                    } else {
+                        System.out.println("it's not a triple");
+                    }
+                    if (c == 1) {
+                        System.out.println("COMPTE 1 OK !!");
+                        isOneTrip = true;
+                    } else {
+                        System.out.println("COMPTE 1 NO !!");
+                        isOneTrip = false;
+
+                    }
+                }
+
+            }
+
+            @Override
+            public void visit(ElementData el) {
+                StringUtils util = new StringUtils();
+
+            }
+        });
+
+        return (isSel) && (hasAggre) && (isConform) && (isOneTrip);
+    }
+
+
     public static void main(String[] args) {
        SNTL s= new SNTL();
-//      
-//       String quest="Who was the doctoral supervisor of Albert Einstein?";
-//       
-////       String requ=s.parse1(quest);
-//       String reponse = s.sntl(requ);
-// System.out.println("****************************************************");
-//
-//       System.out.println("The question is : "+quest);
-//       System.out.println("the sparql is : "+requ);
-//       System.out.println("And this is the title of the response : "+reponse);
-//       
+
     }
 }
