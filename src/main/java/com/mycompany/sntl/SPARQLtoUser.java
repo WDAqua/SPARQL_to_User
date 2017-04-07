@@ -1,43 +1,21 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.mycompany.sntl;
 
-
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.ListIterator;
-import javax.xml.parsers.ParserConfigurationException;
 import org.apache.jena.graph.Node;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.QueryFactory;
+import org.apache.jena.query.QueryParseException;
 import org.apache.jena.query.ResultSet;
-import static org.apache.jena.query.ResultSetFactory.result;
-import static org.apache.jena.query.ResultSetFactory.result;
 import org.apache.jena.query.Syntax;
 import org.apache.jena.sparql.core.TriplePath;
-import org.apache.jena.sparql.lang.arq.ParseException;
 import org.apache.jena.sparql.syntax.ElementData;
 import org.apache.jena.sparql.syntax.ElementPathBlock;
 import org.apache.jena.sparql.syntax.ElementVisitorBase;
 import org.apache.jena.sparql.syntax.ElementWalker;
 import org.apache.jena.sparql.util.StringUtils;
-import static org.apache.jena.sparql.vocabulary.TestManifest.result;
-import static org.apache.jena.tdb.lib.NodeLib.nodes;
-import static org.apache.jena.vocabulary.TestManifest.result;
-import org.apache.maven.plugins.annotations.Execute;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.w3c.dom.DOMException;
-import org.xml.sax.SAXException;
 
 
 
@@ -45,23 +23,27 @@ import org.xml.sax.SAXException;
  *
  * @author youssef
  */
-public class SNTL {
-   
-    String strq;
+public class SPARQLtoUser {
+
     String resulte;
     String predicate;
     boolean isOneTrip;
     boolean isConform;
     
 
-    public String sntl(String strq) {
-
-        Query q = QueryFactory.create(strq, Syntax.syntaxARQ);
+    public String go(String strq) {
+        Query q;
+        try {
+            q = QueryFactory.create(strq, Syntax.syntaxARQ);
+        } catch (QueryParseException e){
+            System.out.println(e);
+            return null;
+        }
       
         if (isThereOk(q)) {
             ElementWalker.walk(q.getQueryPattern(),
-                    // For each element...
-                    new ElementVisitorBase() {
+                // For each element...
+                new ElementVisitorBase() {
                 // ...when it's a block of triples...
                 @Override
                 public void visit(ElementPathBlock el) {
@@ -96,13 +78,9 @@ public class SNTL {
             String strPredicat = strTo(predicate);
             String subject = getLabel(strSubject);
             String predicat = getLabel(strPredicat);
-            String resultate = predicat + "/" + subject;
-            System.out.println("The Title of the query is : ");
-            System.out.println(resultate);
-
-            return resultate;
+            String result = subject + "/" + predicate;
+            return result;
         } else {
-            System.out.println("The query is not OK ");
             return null;
         }
     }
@@ -134,13 +112,13 @@ public class SNTL {
         return "<" + str2.replaceAll("/prop/direct", "/entity") + ">";
     }
   
-    public boolean isThereOk(Query qu) {
+    public boolean isThereOk(Query query) {
 
         boolean res;
-        boolean isSel = qu.isSelectType();
-        boolean hasAggre = !(qu.hasAggregators());
+        boolean isSel = query.isSelectType();
+        boolean hasAggre = !(query.hasAggregators());
 
-        ElementWalker.walk(qu.getQueryPattern(),
+        ElementWalker.walk(query.getQueryPattern(),
                 // For each element...
                 new ElementVisitorBase() {
             // ...when it's a block of triples...
@@ -166,12 +144,11 @@ public class SNTL {
                     } 
                   
                 }
-                     if (c == 1) {
-                        isOneTrip = true;
-                    } else {
-                        isOneTrip = false;
-
-                    }
+                if (c == 1) {
+                    isOneTrip = true;
+                } else {
+                    isOneTrip = false;
+                }
             }
 
             @Override
@@ -186,7 +163,7 @@ public class SNTL {
 
 
     public static void main(String[] args) {
-       SNTL s= new SNTL();
+       SPARQLtoUser s= new SPARQLtoUser();
 
     }
 }
