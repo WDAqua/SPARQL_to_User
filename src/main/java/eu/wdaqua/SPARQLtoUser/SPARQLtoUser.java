@@ -74,11 +74,9 @@ public class SPARQLtoUser {
 
                 }
             });
-            String strSubject = strTo(resulte);
-            String strPredicat = strTo(predicate);
-            String subject = getLabel(strSubject);
-            String predicat = getLabel(strPredicat);
-            String result = subject + "/" + predicate;
+            String strSubject = getLabel(resulte.replaceAll("/prop/direct", "/entity"));
+            String strPredicate = getLabel(predicate.replaceAll("/prop/direct", "/entity"));
+            String result = strSubject + "/" + strPredicate;
             return result;
         } else {
             return null;
@@ -90,7 +88,7 @@ public class SPARQLtoUser {
         String res
                 = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>"
                 + " SELECT DISTINCT ?o WHERE { "
-                + " " + s + " rdfs:label ?o ."
+                + " <" + s + "> rdfs:label ?o ."
                 + "  FILTER( lang(?o)=\"en\")"
                 + "} limit 20 ";
 
@@ -109,7 +107,7 @@ public class SPARQLtoUser {
     }
 
     public String strTo(String str2) {
-        return "<" + str2.replaceAll("/prop/direct", "/entity") + ">";
+        return  str2 ;
     }
   
     public boolean isThereOk(Query query) {
