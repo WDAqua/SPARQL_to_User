@@ -25,10 +25,43 @@ import org.apache.jena.sparql.util.StringUtils;
  */
 public class SPARQLtoUser {
 
+    
+    private final String sparql;
+    private final String lang;
+    private final String kb;
+    private final String s;
+    
     String resulte;
     String predicate;
     boolean isOneTrip;
     boolean isConform;
+
+    public SPARQLtoUser(String sparql, String lang, String kb){
+        this.sparql=sparql;
+        this.lang=lang;
+        this.kb=kb;
+        this.s = go(sparql);   
+    }
+
+    
+
+   
+    
+    public String getSparql() {
+        return sparql;
+    }
+
+    public String getLang() {
+        return lang;
+    }
+     public String getKb() {
+        return kb;
+    }
+       
+     public String getS() {
+        return s;
+    }
+    
     
 
     public String go(String strq) {
