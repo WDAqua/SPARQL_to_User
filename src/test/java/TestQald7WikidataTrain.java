@@ -3,7 +3,7 @@
  * @author youssef
  */
 
-import com.mycompany.sntl.SPARQLtoUser;
+import eu.wdaqua.SPARQLtoUser.SPARQLtoUser;
 import org.junit.Test;
 
 import org.json.simple.JSONArray;

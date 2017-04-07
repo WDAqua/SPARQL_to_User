@@ -1,4 +1,4 @@
-package com.mycompany.sntl;
+package eu.wdaqua.SPARQLtoUser;
 
 import java.util.ArrayList;
 import java.util.ListIterator;
