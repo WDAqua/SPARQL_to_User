@@ -160,8 +160,4 @@ public class SPARQLtoUser {
     }
 
 
-    public static void main(String[] args) {
-       SPARQLtoUser s= new SPARQLtoUser();
-
-    }
 }
