@@ -1,7 +1,11 @@
 package eu.wdaqua.SPARQLtoUser;
 
+import ch.qos.logback.core.util.AggregationType;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ListIterator;
+import java.util.Spliterator;
+import java.util.function.Predicate;
 import org.apache.jena.graph.Node;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
@@ -9,8 +13,16 @@ import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.QueryParseException;
 import org.apache.jena.query.ResultSet;
+import org.apache.jena.query.SortCondition;
 import org.apache.jena.query.Syntax;
+import org.apache.jena.riot.system.IRIResolver;
+import org.apache.jena.sparql.algebra.Op;
+import org.apache.jena.sparql.algebra.OpLib;
 import org.apache.jena.sparql.core.TriplePath;
+import org.apache.jena.sparql.core.Var;
+import org.apache.jena.sparql.expr.Expr;
+import org.apache.jena.sparql.expr.ExprAggregator;
+import org.apache.jena.sparql.expr.ExprVar;
 import org.apache.jena.sparql.syntax.ElementData;
 import org.apache.jena.sparql.syntax.ElementPathBlock;
 import org.apache.jena.sparql.syntax.ElementVisitorBase;
@@ -26,27 +38,33 @@ import org.apache.jena.sparql.util.StringUtils;
 public class SPARQLtoUser {
 
     
-    private final String sparql;
-    private final String lang;
-    private final String kb;
-    private final String s;
-    
-    String resulte;
+    private  String sparql;
+    private  String lang;
+    private  String kb;
+    private  String s;
+  
+    String subject;
     String predicate;
+    String object;
+    String result;
     boolean isOneTrip;
     boolean isConform;
+
+    public SPARQLtoUser() {
+        
+    }
+    
+    
 
     public SPARQLtoUser(String sparql, String lang, String kb){
         this.sparql=sparql;
         this.lang=lang;
         this.kb=kb;
         this.s = go(sparql);   
-    }
+    }   
 
     
 
-   
-    
     public String getSparql() {
         return sparql;
     }
@@ -61,8 +79,6 @@ public class SPARQLtoUser {
      public String getS() {
         return s;
     }
-    
-    
 
     public String go(String strq) {
         Query q;
@@ -72,8 +88,7 @@ public class SPARQLtoUser {
             System.out.println(e);
             return null;
         }
-      
-        if (isThereOk(q)) {
+      if (!q.hasAggregators()){
             ElementWalker.walk(q.getQueryPattern(),
                 // For each element...
                 new ElementVisitorBase() {
@@ -89,17 +104,121 @@ public class SPARQLtoUser {
                         // ...and grab the subject
                         TriplePath triple = triples.next();
                         if (triple.isTriple()) {
-                       
-                                resulte=triple.getSubject().toString();
+                      
+                                subject=triple.getSubject().toString();
                                 predicate=triple.getPredicate().toString();
-
-                        } else {
-                            triple.getPath();
-                        }
-
+                                object = triple.getObject().toString();
+                                String strSubject;
+                                String strPredicate;
+                                String strObject;
+                                strSubject = getLabel(subject.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"));
+                                strObject = getLabel(object.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"));
+                                strPredicate = getLabel(predicate.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"));
+                                if (q.hasOrderBy()){
+                                    boolean isOrdDesc = q.getOrderBy().get(0).toString().contains("DESC");
+                                    if (isOrdDesc){
+                                    if (result ==null){
+                                        result = "the most //"+strPredicate+"/"+strObject+"/"+strSubject;
+                                    }else{
+                                        result =result+"/"+strPredicate+"/"+strObject+"/"+strSubject;
+                                    }
+                                    }
+                                }
+                                 if (!q.hasOrderBy()){
+                                    if (triple.getSubject().isURI()){
+                                    result =result+"//"+ strSubject;
+                                    }
+                                     if (triple.getObject().isURI()){
+                                  result = result+"/"+strObject;
+                                    }
+                                    if (triple.getPredicate().isURI()){         
+                                        result = result+"/"+strPredicate;
+                                    }
+                                   
+                         
+                                 }
+                        } 
                     }
+                }
+                @Override
+                public void visit(ElementData el) {
+                    StringUtils util = new StringUtils();
 
                 }
+            });
+      
+      
+           
+   if (q.isAskType()){
+       result = "check("+result+")";
+      } 
+     }
+      if (q.hasAggregators()){
+       
+       ElementWalker.walk(q.getQueryPattern(),
+                // For each element...
+                new ElementVisitorBase() {
+                // ...when it's a block of triples...
+                @Override
+                public void visit(ElementPathBlock el) {
+                    // ...go through all the triples...
+
+                    ListIterator<TriplePath> triples = el.getPattern().iterator();
+                    ArrayList<Node> nodes = new ArrayList<Node>();
+                    int i=1;
+                    while (triples.hasNext()) {
+                        // ...and grab the subject
+                        TriplePath triple = triples.next();
+                        if (triple.isTriple()) {
+                            System.out.println("it's triple !!!"+i);
+                                subject=triple.getSubject().toString();
+                                predicate=triple.getPredicate().toString();
+                                object = triple.getObject().toString();
+                                String strSubject;
+                                String strPredicate;
+                                String strObject;
+                                strSubject =getLabel(subject.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"));
+                                strPredicate =getLabel(predicate.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"));
+                                strObject =getLabel(object.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"));
+
+                                boolean  subjCount= q.getAggregators().get(0).toString().contains(triple.getSubject().toString());
+                                boolean  predictCount= q.getAggregators().get(0).toString().contains(triple.getPredicate().toString());
+                                boolean  objCount= q.getAggregators().get(0).toString().contains(triple.getObject().toString());
+                                boolean  isSubjectQuest = triple.getSubject().toString().contains("?uri");
+                                boolean  isObjectQuest = triple.getObject().toString().contains("?uri");
+                                long limit= q.getLimit();
+                                String strngz = q.getAggregators().get(0).getVar().toString();
+                        if (q.hasOrderBy()){
+                                    boolean isOrdDesc = q.getOrderBy().get(0).toString().contains("DESC");
+                            
+                                  
+                                    if (isOrdDesc){
+                                    if (result ==null){
+                                        result = "the most //"+strPredicate+"/"+strObject+"/"+strSubject;
+                                    }else{
+                                        result =result+"/"+strPredicate+"/"+strObject+"/"+strSubject;
+                                    }
+                                    }
+                          i++;    
+                        } 
+                        if (!q.hasOrderBy()) {
+                                if (result ==null){
+                                result = "how many //"+strObject+"/"+strPredicate+"/"+strSubject;
+                                 }else{
+                                result = result+"/"+strObject+"/"+strPredicate+"/"+strSubject; 
+                                }
+                        }
+                        if (q.hasHaving()){
+                                List<Expr> b = q.getHavingExprs();
+                                Expr br=b.get(0).getFunction();
+                                
+                        }
+                        }
+                        else {
+                            System.out.println("it's not a triple !!");
+                        }
+                    }
+                }    
 
                 @Override
                 public void visit(ElementData el) {
@@ -107,13 +226,16 @@ public class SPARQLtoUser {
 
                 }
             });
-            String strSubject = getLabel(resulte.replaceAll("/prop/direct", "/entity"));
-            String strPredicate = getLabel(predicate.replaceAll("/prop/direct", "/entity"));
-            String result = strSubject + "/" + strPredicate;
-            return result;
-        } else {
-            return null;
-        }
+      
+    }
+            result = result.replaceAll("/null", "");
+            result = result.replaceAll("/null/", "/");
+            result = result.replaceAll("null//", "");
+            result = result.replaceAll("null/", "");
+            result = result.replaceAll("/instance of/", "/");
+            result = result.replaceAll("instance of/", "/");
+ 
+         return result;
     }
 
     public String getLabel(String s) {
@@ -133,7 +255,7 @@ public class SPARQLtoUser {
         ;
         while (result.hasNext()) {
             lab = result.next().getLiteral("o").getLexicalForm().toString();
-            //  System.out.println(lab);
+
         }
         return lab;
 
@@ -164,7 +286,7 @@ public class SPARQLtoUser {
                     TriplePath triple = triples.next();
                     if (triple.isTriple()) {
 
-                        if ((triple.getSubject().isURI()) && (triple.getPredicate().isURI() && (triple.getObject().isVariable()))) {
+                        if ((triple.getSubject().isURI()) && (triple.getPredicate().isURI()) && (triple.getObject().isVariable())) {
                             isConform = true;
 
                         } else {
@@ -189,7 +311,7 @@ public class SPARQLtoUser {
             }
         });
 
-        return (isSel) && (hasAggre) && (isConform) && (isOneTrip);
+        return (isSel) && (hasAggre) && (isConform);// && (isOneTrip);
     }
 
 

@@ -43,8 +43,10 @@ public class TestQald7WikidataTrain {
                     JSONObject query=(JSONObject)next.get("query");
                     if (query.containsKey("sparql")){
                         expectedQuery=query.get("sparql").toString();
-                        System.out.println(expectedQuery);
-                        SPARQLtoUser s= new SPARQLtoUser();
+//                        System.out.println(expectedQuery);
+                        
+                        SPARQLtoUser s = new SPARQLtoUser();
+                        
                         String reponse = s.go(expectedQuery);
                         System.out.println(reponse);
                   }
