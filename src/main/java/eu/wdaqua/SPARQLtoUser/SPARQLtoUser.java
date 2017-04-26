@@ -118,26 +118,29 @@ public class SPARQLtoUser {
                                     boolean isOrdDesc = q.getOrderBy().get(0).toString().contains("DESC");
                                     if (isOrdDesc){
                                     if (result ==null){
-                                        result = "the most //"+strPredicate+"/"+strObject+"/"+strSubject;
+                                    result = "the most //"+strPredicate+"/"+strObject+"/"+strSubject;
                                     }else{
-                                        result =result+"/"+strPredicate+"/"+strObject+"/"+strSubject;
+                                    result =result+"/"+strPredicate+"/"+strObject+"/"+strSubject;
                                     }
                                     }
                                 }
                                  if (!q.hasOrderBy()){
-                                    if (triple.getSubject().isURI()){
-                                    result =result+"//"+ strSubject;
-                                    }
-                                     if (triple.getObject().isURI()){
-                                  result = result+"/"+strObject;
-                                    }
                                     if (triple.getPredicate().isURI()){         
-                                        result = result+"/"+strPredicate;
+                                    result = result+"/"+strPredicate;
                                     }
-                                   
-                         
+                                    if (triple.getSubject().isURI()){
+                                    result =result+"/"+ strSubject;
+                                    }
+                                    if (triple.getObject().isURI()){
+                                    result = result+"/"+strObject;
+                                    }
+                                
+                                    
                                  }
-                        } 
+                        } else {
+                            result="";
+                            System.out.println("it's not a triple");
+                        }
                     }
                 }
                 @Override
@@ -146,11 +149,9 @@ public class SPARQLtoUser {
 
                 }
             });
-      
-      
-           
+        
    if (q.isAskType()){
-       result = "check("+result+")";
+        result = "check("+result+")";
       } 
      }
       if (q.hasAggregators()){
@@ -180,7 +181,6 @@ public class SPARQLtoUser {
                                 strSubject =getLabel(subject.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"));
                                 strPredicate =getLabel(predicate.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"));
                                 strObject =getLabel(object.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"));
-
                                 boolean  subjCount= q.getAggregators().get(0).toString().contains(triple.getSubject().toString());
                                 boolean  predictCount= q.getAggregators().get(0).toString().contains(triple.getPredicate().toString());
                                 boolean  objCount= q.getAggregators().get(0).toString().contains(triple.getObject().toString());
@@ -189,16 +189,22 @@ public class SPARQLtoUser {
                                 long limit= q.getLimit();
                                 String strngz = q.getAggregators().get(0).getVar().toString();
                         if (q.hasOrderBy()){
-                                    boolean isOrdDesc = q.getOrderBy().get(0).toString().contains("DESC");
-                            
-                                  
-                                    if (isOrdDesc){
-                                    if (result ==null){
-                                        result = "the most //"+strPredicate+"/"+strObject+"/"+strSubject;
-                                    }else{
-                                        result =result+"/"+strPredicate+"/"+strObject+"/"+strSubject;
-                                    }
-                                    }
+                                boolean isOrdDesc = q.getOrderBy().get(0).toString().contains("DESC");
+                                boolean isOrdAsc = q.getOrderBy().get(0).toString().contains("ASC");
+                              
+                            if (isOrdDesc){
+                                if (result ==null){
+                                result = "the most //"+strPredicate+"/"+strObject+"/"+strSubject;
+                                }else{
+                                result =result+"/"+strPredicate+"/"+strObject+"/"+strSubject;
+                            }
+                            }else if (isOrdAsc) {
+                                 if (result ==null){
+                                result = "the least //"+strPredicate+"/"+strObject+"/"+strSubject;
+                                }else{
+                                result =result+"/"+strPredicate+"/"+strObject+"/"+strSubject;
+                            }
+                            }
                           i++;    
                         } 
                         if (!q.hasOrderBy()) {
@@ -213,28 +219,34 @@ public class SPARQLtoUser {
                                 Expr br=b.get(0).getFunction();
                                 
                         }
-                        }
-                        else {
-                            System.out.println("it's not a triple !!");
+                        }else{
+                            result="";
+                                System.out.println("it'not a triple !!!");
                         }
                     }
                 }    
 
                 @Override
                 public void visit(ElementData el) {
-                    StringUtils util = new StringUtils();
+                        StringUtils util = new StringUtils();
+//                        feature.put("linking",1.0);
+//                        int i=m.getIndex(el.getRows().get(0).get(el.getVars().get(0)).toString());
+//                        int sim=util.getLevenshteinDistance(m.getText(i).toLowerCase(),m.getLex(i).toLowerCase());
+//                        feature.put("r"+6+"-sim",(double)sim);
+//                        feature.put("r"+6+"-rel",(double)m.getRel(i));
+//                        feature.put("r"+7+"-type",m.getType(i));
 
                 }
             });
       
     }
+      if (result!=null){
             result = result.replaceAll("/null", "");
             result = result.replaceAll("/null/", "/");
-            result = result.replaceAll("null//", "");
             result = result.replaceAll("null/", "");
             result = result.replaceAll("/instance of/", "/");
             result = result.replaceAll("instance of/", "/");
- 
+      }
          return result;
     }
 
