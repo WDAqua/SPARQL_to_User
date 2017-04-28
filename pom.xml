@@ -15,7 +15,6 @@
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>1.5.2.RELEASE</version>
     </parent>
-    
     <dependencies>
         <dependency>
             <groupId>org.apache.jena</groupId>
@@ -35,12 +34,12 @@
             <version>3.0.0</version>
             <type>pom</type>
             <exclusions>
-        <exclusion> 
+        <exclusion>
           <groupId>org.slf4j</groupId>
           <artifactId>slf4j-log4j12</artifactId>
         </exclusion>
 
-        </exclusions> 
+        </exclusions>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>

@@ -88,6 +88,59 @@ public class SPARQLtoUser {
             System.out.println(e);
             return null;
         }
+
+/******************************************************************************************/
+
+        if (isThereOk(q)){
+            ElementWalker.walk(q.getQueryPattern(),
+                    // For each element...
+                    new ElementVisitorBase() {
+                        // ...when it's a block of triples...
+                        @Override
+                        public void visit(ElementPathBlock el) {
+                            // ...go through all the triples...
+
+                            ListIterator<TriplePath> triples = el.getPattern().iterator();
+                            ArrayList<Node> nodes = new ArrayList<Node>();
+
+                            while (triples.hasNext()) {
+                                // ...and grab the subject
+                                TriplePath triple = triples.next();
+                                if (triple.isTriple()) {
+
+                                    subject=triple.getSubject().toString();
+                                    predicate=triple.getPredicate().toString();
+                                    object = triple.getObject().toString();
+                                    String strSubject;
+                                    String strPredicate;
+                                    String strObject;
+                                    strSubject = getLabel(subject.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"));
+                                    strObject = getLabel(object.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"));
+                                    strPredicate = getLabel(predicate.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"));
+
+                                    result= strSubject+"/"+strPredicate+"/"+strObject;
+                                                                   } else {
+                                    result="";
+                                    System.out.println("it's not a triple");
+                                }
+                            }
+                        }
+                        @Override
+                        public void visit(ElementData el) {
+                            StringUtils util = new StringUtils();
+
+                        }
+                    });
+
+        }else  {
+
+
+
+
+    /***********************************************************************************/
+
+
+
       if (!q.hasAggregators()){
             ElementWalker.walk(q.getQueryPattern(),
                 // For each element...
@@ -240,6 +293,8 @@ public class SPARQLtoUser {
             });
       
     }
+    result=null;
+        }
       if (result!=null){
             result = result.replaceAll("/null", "");
             result = result.replaceAll("/null/", "/");
@@ -298,7 +353,7 @@ public class SPARQLtoUser {
                     TriplePath triple = triples.next();
                     if (triple.isTriple()) {
 
-                        if ((triple.getSubject().isURI()) && (triple.getPredicate().isURI()) && (triple.getObject().isVariable())) {
+                        if (((triple.getSubject().isVariable()) && (triple.getPredicate().isURI()) && (triple.getObject().isURI())) || ((triple.getSubject().isURI()) && (triple.getPredicate().isURI()) && (triple.getObject().isVariable()))) {
                             isConform = true;
 
                         } else {
@@ -323,7 +378,7 @@ public class SPARQLtoUser {
             }
         });
 
-        return (isSel) && (hasAggre) && (isConform);// && (isOneTrip);
+        return (isSel) && (hasAggre) && (isConform)&& (isOneTrip);
     }
 
 
