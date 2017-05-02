@@ -60,7 +60,7 @@ public class SPARQLtoUser {
         this.sparql=sparql;
         this.lang=lang;
         this.kb=kb;
-        this.s = go(sparql);   
+        this.s = go(sparql, lang, kb);
     }   
 
     
@@ -68,19 +68,16 @@ public class SPARQLtoUser {
     public String getSparql() {
         return sparql;
     }
-
     public String getLang() {
         return lang;
     }
-     public String getKb() {
+    public String getKb() {
         return kb;
     }
-       
-     public String getS() {
+    public String getS() {
         return s;
     }
-
-    public String go(String strq) {
+    public String go(String strq, String l, String k) {
         Query q;
         try {
             q = QueryFactory.create(strq, Syntax.syntaxARQ);
@@ -114,10 +111,9 @@ public class SPARQLtoUser {
                                     String strSubject;
                                     String strPredicate;
                                     String strObject;
-                                    strSubject = getLabel(subject.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"));
-                                    strObject = getLabel(object.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"));
-                                    strPredicate = getLabel(predicate.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"));
-
+                                    strSubject = getLabel(subject.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k);
+                                    strObject = getLabel(object.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k);
+                                    strPredicate = getLabel(predicate.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k);
                                     result= strSubject+"/"+strPredicate+"/"+strObject;
                                                                    } else {
                                     result="";
@@ -164,9 +160,9 @@ public class SPARQLtoUser {
                                 String strSubject;
                                 String strPredicate;
                                 String strObject;
-                                strSubject = getLabel(subject.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"));
-                                strObject = getLabel(object.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"));
-                                strPredicate = getLabel(predicate.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"));
+                            strSubject = getLabel(subject.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k);
+                            strObject = getLabel(object.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k);
+                            strPredicate = getLabel(predicate.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k);
                                 if (q.hasOrderBy()){
                                     boolean isOrdDesc = q.getOrderBy().get(0).toString().contains("DESC");
                                     if (isOrdDesc){
@@ -231,9 +227,9 @@ public class SPARQLtoUser {
                                 String strSubject;
                                 String strPredicate;
                                 String strObject;
-                                strSubject =getLabel(subject.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"));
-                                strPredicate =getLabel(predicate.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"));
-                                strObject =getLabel(object.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"));
+                            strSubject = getLabel(subject.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k);
+                            strObject = getLabel(object.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k);
+                            strPredicate = getLabel(predicate.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k);
                                 boolean  subjCount= q.getAggregators().get(0).toString().contains(triple.getSubject().toString());
                                 boolean  predictCount= q.getAggregators().get(0).toString().contains(triple.getPredicate().toString());
                                 boolean  objCount= q.getAggregators().get(0).toString().contains(triple.getObject().toString());
@@ -304,19 +300,23 @@ public class SPARQLtoUser {
       }
          return result;
     }
-
-    public String getLabel(String s) {
+    public String getLabel(String s, String l, String k) {
         String lab = null;
+        String la="\""+l+"\"";
+        //k="http://dbpedia.org/sparql";
+        //k="https://query.wikidata.org/sparql";
         String res
                 = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>"
                 + " SELECT DISTINCT ?o WHERE { "
                 + " <" + s + "> rdfs:label ?o ."
-                + "  FILTER( lang(?o)=\"en\")"
+                + "  FILTER( lang(?o)="+la+" )"
                 + "} limit 20 ";
 
         //       System.out.println(res);
+        if (k.contains("wikidata")){
+         k="https://query.wikidata.org/sparql";
         Query query1 = QueryFactory.create(res);
-        QueryExecution qExe = QueryExecutionFactory.sparqlService("https://query.wikidata.org/sparql", query1);
+        QueryExecution qExe = QueryExecutionFactory.sparqlService(k, query1);
         ResultSet result;
         result = qExe.execSelect();
         ;
@@ -324,14 +324,26 @@ public class SPARQLtoUser {
             lab = result.next().getLiteral("o").getLexicalForm().toString();
 
         }
-        return lab;
+        }
+        if(k.contains("dbpedia"))
+        {
+            k="http://dbpedia.org/sparql";
+            Query query1 = QueryFactory.create(res);
+            QueryExecution qExe = QueryExecutionFactory.sparqlService(k, query1);
+            ResultSet result;
+            result = qExe.execSelect();
+            ;
+            while (result.hasNext()) {
+                lab = result.next().getLiteral("o").getLexicalForm().toString();
 
+            }
+        }if (!k.contains("wikidata") && !k.contains("dbpedia")) {
+            lab = "";
+            System.out.println("---------------not dbpedia && not wikidata");
+        }
+            return lab;
     }
 
-    public String strTo(String str2) {
-        return  str2 ;
-    }
-  
     public boolean isThereOk(Query query) {
 
         boolean res;
