@@ -88,7 +88,7 @@ public class SPARQLtoUser {
 
 /******************************************************************************************/
 
-        if (isThereOk(q)){
+        if (!q.hasAggregators() && q.isSelectType()){
             ElementWalker.walk(q.getQueryPattern(),
                     // For each element...
                     new ElementVisitorBase() {
@@ -128,10 +128,8 @@ public class SPARQLtoUser {
                         }
                     });
 
-        }else  {
-
-
-
+        }
+       else{
 
     /***********************************************************************************/
 
@@ -297,6 +295,8 @@ public class SPARQLtoUser {
             result = result.replaceAll("null/", "");
             result = result.replaceAll("/instance of/", "/");
             result = result.replaceAll("instance of/", "/");
+          System.out.println("SELECT ?x WHERE { VALUES ?x { <http://www.wikidata.org/entity/Q14169302> }}");
+
       }
          return result;
     }
@@ -343,7 +343,6 @@ public class SPARQLtoUser {
         }
             return lab;
     }
-
     public boolean isThereOk(Query query) {
 
         boolean res;
@@ -390,8 +389,7 @@ public class SPARQLtoUser {
             }
         });
 
-        return (isSel) && (hasAggre) && (isConform)&& (isOneTrip);
+        return (isSel) && (hasAggre);// && (isConform)&& (isOneTrip);
     }
-
 
 }

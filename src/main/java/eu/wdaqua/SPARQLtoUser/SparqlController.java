@@ -16,11 +16,11 @@ public class SparqlController {
         response.setHeader("Access-Control-Allow-Origin", "*");
     }
     @RequestMapping("/sparqltouser")
-    public SPARQLtoUser sparqlToUser(@RequestParam(value="sparql", defaultValue = "SELECT DISTINCT ?uri WHERE { <http://www.wikidata.org/entity/Q171684> <http://www.wikidata.org/prop/direct/P119> ?uri  . }") String sparql,
+    public sparqltouser sparqlToUser(@RequestParam(value="sparql", defaultValue = "SELECT ?x WHERE { VALUES ?x { <http://www.wikidata.org/entity/Q220> }}") String sparql,
             @RequestParam(value="lang", defaultValue = "en") String lang,
             @RequestParam(value="kb", defaultValue = "wikidata.org") String kb) {
             System.out.println("Request "+sparql);
-            return new SPARQLtoUser(sparql, lang, kb);
+            return new sparqltouser(sparql, lang, kb);
 
     }
 }
