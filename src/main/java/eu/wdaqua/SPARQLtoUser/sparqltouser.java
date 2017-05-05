@@ -124,20 +124,15 @@ public class sparqltouser {
 
                             StringUtils util = new StringUtils();
                             String ur=el.getRows().get(0).get(el.getVars().get(0)).toString();
+
+                            System.out.println("-----NS------" + el.getRows().get(0).get(el.getVars().get(0)).getNameSpace());
+                            System.out.println("-----LN------" + el.getRows().get(0).get(el.getVars().get(0)).getLocalName());
+
                             System.out.println("This is a VALUES QUERY..."+el.getRows().get(0).get(el.getVars().get(0)).toString());
                             result=getLabel(ur.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"),l,k).get(0);
                             if (getLabel(ur,l,k).size()==2){
-                                result+="( "+getLabel(ur.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"),l,k).get(1)+" )";
+                                result+=" ("+getLabel(ur.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"),l,k).get(1)+")";
                             }
-
-
-//                          feature.put("linking",1.0);
-//                          int i=m.getIndex(el.getRows().get(0).get(el.getVars().get(0)).toString());
-//                          int sim=util.getLevenshteinDistance(m.getText(i).toLowerCase(),m.getLex(i).toLowerCase());
-//                          feature.put("r"+6+"-sim",(double)sim);
-//                          feature.put("r"+6+"-rel",(double)m.getRel(i));
-//                          feature.put("r"+7+"-type",m.getType(i));
-
 
                         }
                     });
@@ -157,58 +152,52 @@ public class sparqltouser {
         //k="http://dbpedia.org/sparql";
         //k="https://query.wikidata.org/sparql";
         String res
-                    = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " +
-                        " PREFIX schema: <http://schema.org/> "
+                = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> "
+                + " PREFIX schema: <http://schema.org/> "
                 + " SELECT DISTINCT ?o ?x WHERE { "
                 + " <" + s + "> rdfs:label ?o . "
                 + "  OPTIONAL { <" + s + ">  schema:description ?x FILTER( lang(?x)="+la+" )} . "
                 + "  FILTER( lang(?o)="+la+" )"
                 + "} limit 20 ";
-
         System.out.println(res);
-        if (k.contains("wikidata")){
-         k="https://query.wikidata.org/sparql";
+        if (s.contains("wikidata")){
+
+            k="https://query.wikidata.org/sparql";
                 Query query1 = QueryFactory.create(res);
                 QueryExecution qExe = QueryExecutionFactory.sparqlService(k, query1);
                 ResultSet result;
                 result = qExe.execSelect();
-
-
             ;
         while (result.hasNext()) {
 
             QuerySolution rsnext = result.next();
-            System.out.println(rsnext.getLiteral("o").getLexicalForm().toString());
+            System.out.println("Valeur 0 du Tableau"+rsnext.getLiteral("o").getLexicalForm().toString());
             lab.add(rsnext.getLiteral("o").getLexicalForm().toString());
             System.out.println(rsnext.getLiteral("o").getLexicalForm().toString());
             if (rsnext.getLiteral("x")!=null){
                 lab.add(rsnext.getLiteral("x").getLexicalForm().toString());
             }
-            else{
-                lab.add("~~");
-            }
-
-
         }
         }
-        else if(k.contains("dbpedia"))
+        else if(s.contains("dbpedia"))
         {
             k="http://dbpedia.org/sparql";
+            System.out.println(res);
             Query query1 = QueryFactory.create(res);
             QueryExecution qExe = QueryExecutionFactory.sparqlService(k, query1);
             ResultSet result;
             result = qExe.execSelect();
             ;
             while (result.hasNext()) {
-//            lab.add( result.next().getLiteral("o").getLexicalForm().toString());
-//            lab.add( result.next().getLiteral("x").getLexicalForm().toString());
-            }
+
+            QuerySolution rsnext2 = result.next();
+            System.out.println("Valeur 0 du Tableau"+rsnext2.getLiteral("o").getLexicalForm().toString());
+            lab.add(rsnext2.getLiteral("o").getLexicalForm().toString());
+           }
         }else{
             lab = null;
             System.out.println("---------------not dbpedia && not wikidata");
         }
             return lab;
     }
-
-
 }
