@@ -113,6 +113,7 @@ public class sparqltouser {
                                 }
                                 if (strObject!="") {
                                     result += "/" + strObject;
+
                                 }
                             }else{
                                 result="";
@@ -125,7 +126,10 @@ public class sparqltouser {
                             String ur=el.getRows().get(0).get(el.getVars().get(0)).toString();
                             System.out.println("This is a VALUES QUERY..."+el.getRows().get(0).get(el.getVars().get(0)).toString());
                             result=getLabel(ur.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"),l,k).get(0);
-                            result+="( "+getLabel(ur.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"),l,k).get(1)+" )";
+                            if (getLabel(ur,l,k).size()==2){
+                                result+="( "+getLabel(ur.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"),l,k).get(1)+" )";
+                            }
+
 
 //                          feature.put("linking",1.0);
 //                          int i=m.getIndex(el.getRows().get(0).get(el.getVars().get(0)).toString());
@@ -157,8 +161,8 @@ public class sparqltouser {
                         " PREFIX schema: <http://schema.org/> "
                 + " SELECT DISTINCT ?o ?x WHERE { "
                 + " <" + s + "> rdfs:label ?o . "
-                + " <" + s + "> schema:description ?x . "
-                + "  FILTER( lang(?o)="+la+" && lang(?x)="+la+" )"
+                + "  OPTIONAL { <" + s + ">  schema:description ?x FILTER( lang(?x)="+la+" )} . "
+                + "  FILTER( lang(?o)="+la+" )"
                 + "} limit 20 ";
 
         System.out.println(res);
@@ -176,7 +180,14 @@ public class sparqltouser {
             QuerySolution rsnext = result.next();
             System.out.println(rsnext.getLiteral("o").getLexicalForm().toString());
             lab.add(rsnext.getLiteral("o").getLexicalForm().toString());
-            lab.add(rsnext.getLiteral("x").getLexicalForm().toString());
+            System.out.println(rsnext.getLiteral("o").getLexicalForm().toString());
+            if (rsnext.getLiteral("x")!=null){
+                lab.add(rsnext.getLiteral("x").getLexicalForm().toString());
+            }
+            else{
+                lab.add("~~");
+            }
+
 
         }
         }
