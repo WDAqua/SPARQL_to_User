@@ -26,6 +26,7 @@ public class sparqltouser {
     String predicate;
     String object;
     String result;
+    boolean contNotTriple= false;
     ArrayList<String> strSubject = new ArrayList<>();
     ArrayList<String> strPredicate = new ArrayList<>();
     ArrayList<String> strObject = new ArrayList<>();
@@ -76,13 +77,15 @@ public class sparqltouser {
                                 subject = triple.getSubject().toString();
                                 predicate = triple.getPredicate().toString();
                                 object = triple.getObject().toString();
-                                System.out.println("S-" + subject);
-                                System.out.println("P-" + predicate);
-                                System.out.println("O-" + object);
                                 if (triple.getSubject().isURI()) {
                                     String ss = getLabel(subject.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(0);
                                     if (getLabel(subject, l, k).size() == 2) {
-                                        ss += " (" + getLabel(subject.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(1) + ")";
+                                        if (getLabel(subject.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(1).length()<30) {
+
+                                            ss += " (" + getLabel(subject.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(1) + ")";
+                                        }else {
+                                            ss+= " ("+ getLabel(subject.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(1).substring(0, 27)+"...)";
+                                        }
                                     }
                                     strSubject.add(ss);
                                 }
@@ -90,36 +93,48 @@ public class sparqltouser {
 
                                     String so = getLabel(object.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(0);
                                     if (getLabel(object, l, k).size() == 2) {
-                                        so += " (" + getLabel(object.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(1) + ")";
+                                        if (getLabel(object.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(1).length() < 30) {
+
+                                            so += " (" + getLabel(object.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(1) + ")";
+                                        } else {
+                                            so += " (" + getLabel(object.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(1).substring(0, 27) + "...)";
+                                        }
                                     }
+
                                     strObject.add(so);
                                 }
                                 if (triple.getPredicate().isURI()) {
 
                                     String sp = getLabel(predicate.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(0);
                                     if (getLabel(predicate, l, k).size() == 2) {
-                                        sp += " (" + getLabel(predicate.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(1) + ")";
-                                    }
+                                        if (getLabel(predicate.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(1).length()<30)
+
+                                                sp += " (" + getLabel(predicate.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(1) + ")";
+                                            } else {
+                                                sp += " (" + getLabel(predicate.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(1).substring(0, 27) + "...)";
+                                            }
                                     strPredicate.add(sp);
                                 }
                             } else {
                                 System.out.println("it's not a triple");
+                                contNotTriple=true;
                             }
-
                         }
-                        if (q.isSelectType() && !q.hasAggregators() && strPredicate.size() == 1) {
+                        for (int i=0 ; i < strPredicate.size(); i++){
+                        if (q.isSelectType() && !q.hasAggregators() && contNotTriple== false) {
 
                             if (strPredicate.size() != 0) {
-                                result = strPredicate.get(0);
+                                result += "/"+ strPredicate.get(i);
                             }
                             if (strSubject.size() != 0) {
-                                result += "/" + strSubject.get(0);
+                                result += "/" + strSubject.get(i);
                             }
                             if (strObject.size() != 0) {
-                                result += "/" + strObject.get(0);
+                                result += "/" + strObject.get(i);
                             }
                         } else {
                             result = "";
+                        }
                         }
                     }
 
@@ -146,7 +161,7 @@ public class sparqltouser {
             result = result.replaceAll("/null/", "/");
             result = result.replaceAll("null/", "");
             result = result.replaceAll("/instance of/", "/");
-            result = result.replaceAll("instance of/", "/");
+            result = result.replaceAll("instance of/", "");
         }
         return result;
     }
