@@ -4,10 +4,7 @@
     import org.apache.jena.query.*;
     import org.apache.jena.sparql.core.TriplePath;
     import org.apache.jena.sparql.expr.Expr;
-    import org.apache.jena.sparql.syntax.ElementData;
-    import org.apache.jena.sparql.syntax.ElementPathBlock;
-    import org.apache.jena.sparql.syntax.ElementVisitorBase;
-    import org.apache.jena.sparql.syntax.ElementWalker;
+    import org.apache.jena.sparql.syntax.*;
     import org.apache.jena.sparql.util.StringUtils;
 
     import java.util.ArrayList;
