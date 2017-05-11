@@ -27,6 +27,7 @@ public class sparqltouser {
     String object;
     String result;
     boolean contNotTriple= false;
+    boolean contVarPredic=false;
     ArrayList<String> strSubject = new ArrayList<>();
     ArrayList<String> strPredicate = new ArrayList<>();
     ArrayList<String> strObject = new ArrayList<>();
@@ -88,6 +89,8 @@ public class sparqltouser {
                                         }
                                     }
                                     strSubject.add(ss);
+                                }else{
+                                    strSubject.add("null");
                                 }
                                 if (triple.getObject().isURI()) {
 
@@ -102,26 +105,28 @@ public class sparqltouser {
                                     }
 
                                     strObject.add(so);
+                                }else{
+                                    strObject.add("null");
                                 }
                                 if (triple.getPredicate().isURI()) {
 
                                     String sp = getLabel(predicate.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(0);
-                                    if (getLabel(predicate, l, k).size() == 2) {
-                                        if (getLabel(predicate.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(1).length()<30)
-
-                                                sp += " (" + getLabel(predicate.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(1) + ")";
-                                            } else {
-                                                sp += " (" + getLabel(predicate.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(1).substring(0, 27) + "...)";
-                                            }
                                     strPredicate.add(sp);
+
+                                }else if (triple.getPredicate().isVariable()){
+                                    strPredicate.add("null");
+                                    contVarPredic=true;
+
                                 }
+
+
                             } else {
                                 System.out.println("it's not a triple");
                                 contNotTriple=true;
                             }
                         }
                         for (int i=0 ; i < strPredicate.size(); i++){
-                        if (q.isSelectType() && !q.hasAggregators() && contNotTriple== false) {
+                        if (q.isSelectType() && !q.hasAggregators() && contNotTriple== false && contVarPredic==false) {
 
                             if (strPredicate.size() != 0) {
                                 result += "/"+ strPredicate.get(i);
@@ -132,11 +137,18 @@ public class sparqltouser {
                             if (strObject.size() != 0) {
                                 result += "/" + strObject.get(i);
                             }
-                        } else {
+
+                            if (q.isSelectType() && !q.hasAggregators() && contNotTriple== false && contVarPredic==true) {
+
+                            }
+                            } else {
                             result = "";
-                        }
+
                         }
                     }
+                    }
+
+                    //german actors dbpedia
 
                     @Override
                     public void visit(ElementData el) {
@@ -144,13 +156,19 @@ public class sparqltouser {
                         StringUtils util = new StringUtils();
                         String ur = el.getRows().get(0).get(el.getVars().get(0)).toString();
 
-                        System.out.println("-----NS------" + el.getRows().get(0).get(el.getVars().get(0)).getNameSpace());
-                        System.out.println("-----LN------" + el.getRows().get(0).get(el.getVars().get(0)).getLocalName());
+          //              System.out.println("-----NS------" + el.getRows().get(0).get(el.getVars().get(0)).getNameSpace());
+          //              System.out.println("-----LN------" + el.getRows().get(0).get(el.getVars().get(0)).getLocalName());
 
                         System.out.println("This is a VALUES QUERY..." + el.getRows().get(0).get(el.getVars().get(0)).toString());
                         result = getLabel(ur.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(0);
                         if (getLabel(ur, l, k).size() == 2) {
-                            result += " (" + getLabel(ur.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(1) + ")";
+                            if (getLabel(ur.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(1).length() > 35) {
+                                result += " (" + getLabel(ur.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(1).substring(0, 35) + "...)";
+                            }else {
+                                result += " (" + getLabel(ur.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(1) + ")";
+
+                            }
+
                         }
 
                     }
@@ -206,9 +224,10 @@ public class sparqltouser {
                 lab.add(rsnext2.getLiteral("o").getLexicalForm().toString());
             }
         } else {
-            lab = null;
+            lab .add("null");
             System.out.println("---------------not dbpedia && not wikidata");
         }
         return lab;
     }
+
 }
