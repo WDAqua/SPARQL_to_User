@@ -75,17 +75,23 @@ public class sparqltouser {
                             // ...and grab the subject
                             TriplePath triple = triples.next();
                             if (triple.isTriple()) {
+                                if(triple.getSubject().isURI())
                                 subject = triple.getSubject().toString();
+                                if(triple.getPredicate().isURI())
                                 predicate = triple.getPredicate().toString();
+                                if(triple.getObject().isURI())
                                 object = triple.getObject().toString();
-                                if (triple.getSubject().isURI()) {
-                                    String ss = getLabel(subject.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(0);
-                                    if (getLabel(subject, l, k).size() == 2) {
-                                        if (getLabel(subject.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(1).length()<30) {
 
-                                            ss += " (" + getLabel(subject.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(1) + ")";
+                                if (triple.getSubject().isURI()) {
+                                    ArrayList<String> labS = getLabel(subject.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k);
+
+                                    String ss = labS.get(0);
+                                    if (labS.size() == 2) {
+                                        if (labS.get(1).length()<30) {
+
+                                            ss += " (" + labS.get(1) + ")";
                                         }else {
-                                            ss+= " ("+ getLabel(subject.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(1).substring(0, 27)+"...)";
+                                            ss+= " ("+ labS.get(1).substring(0, 27)+"...)";
                                         }
                                     }
                                     strSubject.add(ss);
@@ -93,30 +99,28 @@ public class sparqltouser {
                                     strSubject.add("null");
                                 }
                                 if (triple.getObject().isURI()) {
-
-                                    String so = getLabel(object.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(0);
-                                    if (getLabel(object, l, k).size() == 2) {
-                                        if (getLabel(object.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(1).length() < 30) {
-
-                                            so += " (" + getLabel(object.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(1) + ")";
+                                    ArrayList<String> labO = getLabel(object.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k);
+                                    String so = labO.get(0);
+                                    if (labO.size() == 2) {
+                                        if (labO.get(1).length() < 30) {
+                                            so += " (" + labO.get(1) + ")";
                                         } else {
-                                            so += " (" + getLabel(object.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(1).substring(0, 27) + "...)";
+                                            so += " (" + labO.get(1).substring(0, 27) + "...)";
                                         }
                                     }
-
                                     strObject.add(so);
                                 }else{
                                     strObject.add("null");
                                 }
                                 if (triple.getPredicate().isURI()) {
+                                    ArrayList<String> labP = getLabel(predicate.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k);
 
-                                    String sp = getLabel(predicate.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(0);
+                                    String sp = labP.get(0);
                                     strPredicate.add(sp);
 
                                 }else if (triple.getPredicate().isVariable()){
                                     strPredicate.add("null");
                                     contVarPredic=true;
-
                                 }
 
 
@@ -125,47 +129,59 @@ public class sparqltouser {
                                 contNotTriple=true;
                             }
                         }
-                        for (int i=0 ; i < strPredicate.size(); i++){
-                        if (q.isSelectType() && !q.hasAggregators() && contNotTriple== false && contVarPredic==false) {
+                        for (int i=strPredicate.size()-1 ; i>=0 ; i--) {
+                            if (q.isSelectType() && !q.hasAggregators() && contNotTriple == false && contVarPredic == false ) {
+                                if (strPredicate.size() != 0) {
+                                    result += "/" + strPredicate.get(i);
+                                }
+                                if (strSubject.size() != 0) {
+                                    result += "/" + strSubject.get(i);
+                                }
+                                if (strObject.size() != 0) {
+                                    result += "/" + strObject.get(i);
+                                }
+                            }
+                            else if (q.isSelectType() && !q.hasAggregators() && contNotTriple == false && contVarPredic == true && strPredicate.size() != 1) {
+                                if (strPredicate.size() != 0 && strPredicate.get(i)!="null") {
+                                    result += "/" + strPredicate.get(i) ;
+                                }
+                                if (strSubject.size() != 0 && strSubject.get(i)!="null") {
+                                    result += "/" + strSubject.get(i);
+                                }
+                                if (strObject.size() != 0 && strObject.get(i)!="null") {
+                                    result += "/" + strObject.get(i);
+                                }
+                                if (!result.contains("/~")){
+                                result+="/~ ";
+                                ArrayList<String>gAlt = getAlternatives(subject ,predicate, l, k);
+                                for (int j=0 ; j<gAlt.size(); j++) {
+                                    ArrayList<String> labJ = getLabel(gAlt.get(j).replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"),l ,k);
+                                    if(labJ.get(0).length()<30)
+                                    result +=labJ.get(0)+ ",  ";
+                                }
+                                result +="... ~";
+                                }
 
-                            if (strPredicate.size() != 0) {
-                                result += "/"+ strPredicate.get(i);
+                            }else{
+                                result = "";
                             }
-                            if (strSubject.size() != 0) {
-                                result += "/" + strSubject.get(i);
-                            }
-                            if (strObject.size() != 0) {
-                                result += "/" + strObject.get(i);
-                            }
-
-                            if (q.isSelectType() && !q.hasAggregators() && contNotTriple== false && contVarPredic==true) {
-
-                            }
-                            } else {
-                            result = "";
+                        }
 
                         }
-                    }
-                    }
 
-                    //german actors dbpedia
 
                     @Override
                     public void visit(ElementData el) {
 
                         StringUtils util = new StringUtils();
                         String ur = el.getRows().get(0).get(el.getVars().get(0)).toString();
-
-          //              System.out.println("-----NS------" + el.getRows().get(0).get(el.getVars().get(0)).getNameSpace());
-          //              System.out.println("-----LN------" + el.getRows().get(0).get(el.getVars().get(0)).getLocalName());
-
-                        System.out.println("This is a VALUES QUERY..." + el.getRows().get(0).get(el.getVars().get(0)).toString());
-                        result = getLabel(ur.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(0);
-                        if (getLabel(ur, l, k).size() == 2) {
-                            if (getLabel(ur.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(1).length() > 35) {
-                                result += " (" + getLabel(ur.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(1).substring(0, 35) + "...)";
+                        ArrayList<String> lab=getLabel(ur.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k);
+                        result = lab.get(0);
+                        if (lab.size() == 2) {
+                            if (lab.get(1).length() > 30) {
+                                result += " (" + lab.get(1).substring(0, 30) + "...)";
                             }else {
-                                result += " (" + getLabel(ur.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity"), l, k).get(1) + ")";
+                                result += " (" + lab.get(1) + ")";
 
                             }
 
@@ -184,6 +200,7 @@ public class sparqltouser {
         return result;
     }
     public ArrayList<String> getLabel(String s, String l, String k) {
+        System.out.println("Heyoo I AM IN getLabel again !!!=====================>>");
         ArrayList<String> lab = new ArrayList<>();
         String la = "\"" + l + "\"";
         String res
@@ -194,7 +211,6 @@ public class sparqltouser {
                 + "  OPTIONAL { <" + s + ">  schema:description ?x FILTER( lang(?x)=" + la + " )} . "
                 + "  FILTER( lang(?o)=" + la + " )"
                 + "} limit 20 ";
-        System.out.println(res);
         if (s.contains("wikidata")) {
             k = "https://query.wikidata.org/sparql";
             Query query1 = QueryFactory.create(res);
@@ -212,7 +228,6 @@ public class sparqltouser {
             }
         } else if (s.contains("dbpedia")) {
             k = "http://dbpedia.org/sparql";
-            System.out.println(res);
             Query query1 = QueryFactory.create(res);
             QueryExecution qExe = QueryExecutionFactory.sparqlService(k, query1);
             ResultSet result;
@@ -220,7 +235,6 @@ public class sparqltouser {
             ;
             while (result.hasNext()) {
                 QuerySolution rsnext2 = result.next();
-                System.out.println("Valeur 0 du Tableau" + rsnext2.getLiteral("o").getLexicalForm().toString());
                 lab.add(rsnext2.getLiteral("o").getLexicalForm().toString());
             }
         } else {
@@ -228,6 +242,28 @@ public class sparqltouser {
             System.out.println("---------------not dbpedia && not wikidata");
         }
         return lab;
+    }
+    ArrayList<String> getAlternatives (String s, String p, String l,String k){
+        ArrayList<String> altern = new ArrayList<>();
+        String la = "\"" + l + "\"";
+        String res
+                = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> "
+                + "PREFIX wdt: <http://www.wikidata.org/prop/direct/> "
+                + " SELECT DISTINCT ?x WHERE { "
+                + " <" + s + "> ?x ?o . "
+                + " ?o <" + p + ">  ?y . "
+                + "} limit 20 ";
+        k = "https://query.wikidata.org/sparql";
+        Query query1 = QueryFactory.create(res);
+        QueryExecution qExe = QueryExecutionFactory.sparqlService(k, query1);
+        ResultSet result;
+        result = qExe.execSelect();
+        ;
+        while (result.hasNext()) {
+            QuerySolution rsnext = result.next();
+            altern.add(rsnext.getResource("x").toString());
+        }
+        return altern;
     }
 
 }
