@@ -16,10 +16,7 @@ public class SparqlController {
         response.setHeader("Access-Control-Allow-Origin", "*");
     }
     @RequestMapping("/sparqltouser")
-    public sparqltouser sparqlToUser(@RequestParam(value="sparql", defaultValue = "SELECT DISTINCT ?x WHERE { <http://www.wikidata.org/entity/Q76> ?p <http://www.wikidata.org/entity/Q13133> } limit 1000\n" +
-            "\n" +
-            "\n" +
-            "\n") String sparql,
+    public sparqltouser sparqlToUser(@RequestParam(value="sparql", defaultValue = "SELECT DISTINCT ?x WHERE { ?x ?p1 <http://www.wikidata.org/entity/Q174782> . ?x ?p2 <http://www.wikidata.org/entity/Q495> . } limit 1000") String sparql,
             @RequestParam(value="lang", defaultValue = "en") String lang,
             @RequestParam(value="kb", defaultValue = "wikidata.org") String kb) {
             System.out.println("Request "+sparql);
