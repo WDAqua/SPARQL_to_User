@@ -3,7 +3,7 @@
  * @author youssef
  */
 
-import eu.wdaqua.SPARQLtoUser.SPARQLtoUser;
+import eu.wdaqua.SPARQLtoUser.SPARQLToUser;
 import org.junit.Test;
 
 import org.json.simple.JSONArray;
@@ -46,7 +46,7 @@ public class TestQald7WikidataTrain {
                         expectedQuery=query.get("sparql").toString();
 //                        System.out.println(expectedQuery);
                         
-                        SPARQLtoUser s = new SPARQLtoUser();
+                        SPARQLToUser s = new SPARQLToUser();
                         
                         String reponse = s.go(expectedQuery, language, knowledge);
                         System.out.println(reponse);
