@@ -165,25 +165,16 @@ public class sparqltouser {
                                 }
                                 if (!result.contains("/~")){
                                 result+="/~ ";
-                                    if (strSubject.get(0) != "null") {
                                         ArrayList<ArrayList<String>> gAlt = getAlternatives(strq.replaceFirst(rech.get(0), predicVar.get(0).replace("?", "")), predicVar, l, k);
+                                        System.out.println("GALT "+gAlt);
                                         for (int j = 0; j < gAlt.size(); j++) {
-                                            ArrayList<String> labJ = getLabel(replaceProp(gAlt.get(0).get(j)), l, k);
-                                            //                             if(labJ.get(0).length()<30)
-                                            result += labJ.get(i) + ",  ";
+                                            String labJ = getLabel(replaceProp(gAlt.get(0).get(j)), l, k).get(0);
+                                            //  if(labJ.get(0).length()<30)
+                                            System.out.println("Label "+labJ);
+                                            result += labJ + ",  ";
                                         }
                                         result += " ~";
 
-                                    } else {
-                                        ArrayList<ArrayList<String>> gAlt = getAlternatives(strq.replaceFirst(rech.get(0), predicVar.get(0).replace("?", "")), predicVar, l, k);
-                                        for (int j = 0; j < gAlt.size(); j++) {
-                                            ArrayList<String> labJ = getLabel(replaceProp(gAlt.get(i).get(j)), l, k);
-                                            //                                  if(labJ.get(0).length()<30)
-                                            result += labJ.get(0) + ", ";
-                                        }
-                                        result += " ~";
-
-                                    }
                                 }
 
                                 // case of both of 2 predicates are variables
@@ -312,6 +303,8 @@ public class sparqltouser {
             k="http://dbpedia.org/sparql";
 
         System.out.println("ALTERNATIVE QUERY ... :"+res);
+        System.out.println("P SIZE ... :"+p.size());
+//////////////////////////////////////////////////////////////////////////////
         for (int i=0; i<p.size(); i++) {
             ArrayList<String> petitAltern = new ArrayList<>();
             Query query1 = QueryFactory.create(res);
@@ -325,10 +318,8 @@ public class sparqltouser {
                 String nxt = rsnext.getResource(s).toString();
                 petitAltern.add(nxt);
                 System.out.println("petitAltern  "+ petitAltern);
-                altern.add(petitAltern);
-                petitAltern=new ArrayList<>();
             }
-
+            altern.add(petitAltern);
 
         }
         System.out.println("ALTERN "+altern);
