@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Yousseff on 16/05/17.
+ * Created by Youssef on 16/05/17.
  */
 // we put both of the label and the description of the uri input in an array
 public class Label {
@@ -49,43 +49,31 @@ public class Label {
                 lab.add(rsnext.getLiteral("o").getLexicalForm().toString());
             }
         } else {
-            lab.add("categorie");
-            System.out.println("---------------not dbpedia && not wikidata");
+            logger.info("---------------not dbpedia && not wikidata----------------");
         }
         return lab;
     }
 
     // in case of predicate variable, we take all possibles predicates for one query
-    public ArrayList<ArrayList<String>> getAlternatives (String res, List<String> p, String l, String k){
+    public ArrayList<String> getAlternatives (String res,String  p, String l, String k){
 
-        ArrayList<ArrayList<String>> altern = new ArrayList<>();
-
+        ArrayList<String> altern = new ArrayList<>();
         if (res.contains("wikidata"))
             k = "https://query.wikidata.org/sparql";
         else if (res.contains("dbpedia"))
             k="http://dbpedia.org/sparql";
-
-        System.out.println("ALTERNATIVE QUERY ... :"+res);
-        for (int i=0; i<p.size(); i++) {
-            ArrayList<String> petitAltern = new ArrayList<>();
             Query query1 = QueryFactory.create(res);
             QueryExecution qExe = QueryExecutionFactory.sparqlService(k, query1);
             ResultSet result;
             result = qExe.execSelect();
             while (result.hasNext()) {
                 QuerySolution rsnext = result.next();//
-                String s = p.get(i).replace("?","").toString();
-                System.out.println("Ressources---"+i+"-- " + s);
+                String s = p.replace("?","");
                 String nxt = rsnext.getResource(s).toString();
-                petitAltern.add(nxt);
-                System.out.println("petitAltern  "+ petitAltern);
-                altern.add(petitAltern);
-                petitAltern=new ArrayList<>();
+                altern.add(nxt);
             }
 
 
-        }
-        System.out.println("ALTERN "+altern);
         return altern;
     }
 

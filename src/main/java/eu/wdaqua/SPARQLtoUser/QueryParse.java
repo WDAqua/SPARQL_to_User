@@ -6,6 +6,8 @@ import org.apache.jena.query.QueryParseException;
 import org.apache.jena.query.Syntax;
 import org.apache.jena.sparql.core.TriplePath;
 import org.apache.jena.sparql.syntax.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ListIterator;
 
@@ -18,9 +20,11 @@ public class QueryParse {
     private ListIterator<TriplePath> triples = null;
     private ElementData value = null;
     private Query query = null;
+    private static final Logger logger = LoggerFactory.getLogger(SPARQLToUser.class);
 
 
     void parse(String strq) {
+
         try {
             query = QueryFactory.create(strq, Syntax.syntaxARQ);
         } catch (QueryParseException e) {
@@ -46,71 +50,85 @@ public class QueryParse {
                     @Override
                     public void visit(ElementAssign el){
                         canBeProcessed = false;
+                        logger.info("1");
                     }
 
                     @Override
                     public void	visit(ElementBind el){
                         canBeProcessed = false;
+                        logger.info("2");
                     }
 
                     @Override
                     public void	visit(ElementDataset el){
                         canBeProcessed = false;
+                        logger.info("3");
                     }
 
                     @Override
                     public void	visit(ElementExists el){
                         canBeProcessed = false;
+                        logger.info("4");
                     }
 
                     @Override
                     public void	visit(ElementFilter el){
                         canBeProcessed = false;
+                        logger.info("5");
                     }
 
-                    @Override
+                   /* @Override
                     public void	visit(ElementGroup el){
                         canBeProcessed = false;
-                    }
+                        logger.info("6");
+                    }*/
 
                     @Override
                     public void	visit(ElementMinus el){
                         canBeProcessed = false;
+                        logger.info("7");
                     }
 
                     @Override
                     public void	visit(ElementNamedGraph el){
                         canBeProcessed = false;
+                        logger.info("8");
                     }
 
                     @Override
                     public void	visit(ElementNotExists el){
                         canBeProcessed = false;
+                        logger.info("9");
                     }
 
                     @Override
                     public void	visit(ElementOptional el){
                         canBeProcessed = false;
+                        logger.info("10");
                     }
 
                     @Override
                     public void	visit(ElementService el){
                         canBeProcessed = false;
+                        logger.info("11");
                     }
 
                     @Override
                     public void	visit(ElementSubQuery el){
                         canBeProcessed = false;
+                        logger.info("12");
                     }
 
                     @Override
                     public void	visit(ElementTriplesBlock el){
                         canBeProcessed = false;
+                        logger.info("13");
                     }
 
                     @Override
                     public void	visit(ElementUnion el){
                         canBeProcessed = false;
+                        logger.info("14");
                     }
 
                 });
