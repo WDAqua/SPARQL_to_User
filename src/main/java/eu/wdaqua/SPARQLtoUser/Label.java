@@ -26,7 +26,7 @@ public class Label {
                 + "  OPTIONAL { <" + s + ">  schema:description ?x FILTER( lang(?x)=\"" + l + "\" )} . "
                 + "  FILTER( lang(?o)=\"" + l + "\" )"
                 + "} limit 20 ";
-        if (s.contains("wikidata")) {
+        if (k.contains("wikidata")) {
             k = "https://query.wikidata.org/sparql";
             Query query1 = QueryFactory.create(res);
             QueryExecution qExe = QueryExecutionFactory.sparqlService(k, query1);
@@ -39,7 +39,7 @@ public class Label {
                     lab.add(rsnext.getLiteral("x").getLexicalForm().toString());
                 }
             }
-        } else if (s.contains("dbpedia")) {
+        } else if (k.contains("dbpedia")) {
             k = "http://dbpedia.org/sparql";
             Query query1 = QueryFactory.create(res);
             QueryExecution qExe = QueryExecutionFactory.sparqlService(k, query1);
@@ -50,6 +50,7 @@ public class Label {
             }
         } else {
             logger.info("---------------not dbpedia && not wikidata----------------");
+            lab=null;
         }
         return lab;
     }
@@ -58,10 +59,11 @@ public class Label {
     public ArrayList<String> getAlternatives (String res,String  p, String l, String k){
 
         ArrayList<String> altern = new ArrayList<>();
-        if (res.contains("wikidata"))
+        if (k.contains("wikidata"))
             k = "https://query.wikidata.org/sparql";
-        else if (res.contains("dbpedia"))
+        else if (k.contains("dbpedia"))
             k="http://dbpedia.org/sparql";
+
             Query query1 = QueryFactory.create(res);
             QueryExecution qExe = QueryExecutionFactory.sparqlService(k, query1);
             ResultSet result;
