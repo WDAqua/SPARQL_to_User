@@ -140,7 +140,7 @@ public class SPARQLToUser {
 
 
         }else {
-            result = "not conform";
+            result = "";
         }
 
         // clean the result
