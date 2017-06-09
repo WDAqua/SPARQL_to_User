@@ -51,10 +51,9 @@ public class SPARQLToUser {
 
     public String go(String strq, String l, String k) {
 
-        logger.info("I am in the GO function for the ");
         QueryParse p = new QueryParse();
         p.parse(strq);
-        System.out.println("getCanProcessed "+ p.getCanBeProcessed());
+        logger.info("getCanProcessed "+ p.getCanBeProcessed());
         variables=p.getQuery().getResultVars();
         //treat VALUE part
         if (p.getValue() != null && p.getCanBeProcessed()) {
@@ -91,8 +90,6 @@ public class SPARQLToUser {
                             for (int i = 0; i < gAlt.size(); i++) {
                                ArrayList<String> getlabi=label.getLabel(replaceProp(gAlt.get(i)), l, k);
                                if (getlabi.toString()!="[]") {
-                                   System.out.println("eh oui  il est différent de null !!!");
-
                                    if ((i==0)){
                                 }
                                 if (label.getLabel(replaceProp(gAlt.get(i)), l, k).size()!=0){
@@ -126,8 +123,10 @@ public class SPARQLToUser {
                             so += " (" + retress(labO.get(1)) + ") ";
 
                         }
-                        if (so!=null){
+                        if (so!=null && result!=null){
                         result += "/" + so;
+                        }else if (so!=null && result==null){
+                            result+= so;
                         }
                     }
 
@@ -145,7 +144,6 @@ public class SPARQLToUser {
 
         // clean the result
         if (result != null) {
-            result = result.replaceAll(", ]", " ]");
             result = result.replaceAll("/null", "");
             result = result.replaceAll("null", "");
             result = result.replaceAll("/null/", "/");
@@ -162,6 +160,7 @@ public class SPARQLToUser {
 
         return str.replaceAll("prop/direct", "entity").replaceAll("prop/qualifier", "entity");
     }
+
     public String retress (String str){
         if (str.length() > 30) {
         str = str.substring(0, 27) + "...";
