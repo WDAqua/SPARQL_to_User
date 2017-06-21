@@ -1,5 +1,6 @@
 package eu.wdaqua.SPARQLtoUser;
 
+import org.apache.jena.base.Sys;
 import org.apache.jena.graph.Node;
 import org.apache.jena.sparql.core.TriplePath;
 import org.apache.jena.sparql.util.StringUtils;
@@ -7,6 +8,7 @@ import org.apache.jena.sparql.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.management.Query;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -65,71 +67,75 @@ public class SPARQLToUser {
                     result += " (" + retress(lab.get(1)) + ")";
             }
         }
+
         //treat triple pattrens
         else if (p.getTriples() != null && p.getCanBeProcessed()) {
             ListIterator<TriplePath> triples = p.getTriples();
             ArrayList<Node> nodes = new ArrayList<Node>();
+
+            if (p.getQuery().isAskType()){
+                result ="Check (";
+            }
             while (triples.hasNext()) {
+
                 // ...and grab the subject
                 TriplePath triple = triples.next();
                 if (triple.isTriple()) {
-                if (result!=null){
+                if (result!=null && !result.contains("Check (")){
                 result += newline;
                 }
-                    if (triple.getPredicate().isURI()) {
-                        ArrayList<String> labP = label.getLabel(replaceProp(triple.getPredicate().toString()), l, k);
-                        // for the predicate we don't need description So we put just the label
-                        String sp = labP.get(0);
-                        result+= sp;
-                    } else if (triple.getPredicate().isVariable()) {
-//                        predicVar.add(triple.getPredicate().toString());
+                    if(p.getQuery().isSelectType()){
+                            result+=writePredicate(triple,strq,l,k, variables);
+                        if (result!=null){result+=" / ";}
+                        if (triple.getSubject().isURI()) {
+                            result+=  writeSubject(triple,strq,l,k);
+                        }
 
-                        ArrayList<String> gAlt = label.getAlternatives(strq.replaceFirst(variables.get(0), triple.getPredicate().toString().replace("?", "")), triple.getPredicate().toString(), l, k);
+                        if (result!=null){result+=" / ";}
 
-                        if (gAlt.size()!=0){
-                            for (int i = 0; i < gAlt.size(); i++) {
-                               ArrayList<String> getlabi=label.getLabel(replaceProp(gAlt.get(i)), l, k);
-                               if (getlabi.toString()!="[]") {
-                                   if ((i==0)){
+                        if (triple.getObject().isURI()) {
+                            result+=writeObject(triple,strq,l,k);
+                        }
+                    }
+                    else if (p.getQuery().isAskType()) {
+
+                        if (triple.getSubject().isURI() && triple.getObject().isURI()) {
+
+                            if (triple.getSubject().isURI()) {
+                                result += writeSubject(triple, strq, l, k);
+                            }
+                            if (((triple.getPredicate().isURI()) || (triple.getPredicate().isVariable())) && writePredicate(triple, strq, l, k, variables)!=null){
+                                if (!result.equals("Check (")) {
+                                    result += " / ";
                                 }
-                                if (label.getLabel(replaceProp(gAlt.get(i)), l, k).size()!=0){
-                                    result += retress(label.getLabel(replaceProp(gAlt.get(i)), l, k).get(0));
+                                System.out.println("1");
+                                result += writePredicate(triple, strq, l, k, variables);
+                            }
+                            if (!result.equals("Check (")){result+=" / ";}
+
+                            if (triple.getObject().isURI()) {
+                                result +=writeObject(triple, strq, l, k);
+                            }
+                        }else{
+                            if (triple.getSubject().isURI()) {
+                                result += writeSubject(triple, strq, l, k);
+                            }
+
+                            if (!result.equals("Check (")){result+=" / ";}
+                            if (triple.getObject().isURI()) {
+                                result += writeObject(triple, strq, l, k);
+                            }
+
+                            if ((triple.getPredicate().isURI()) || (triple.getPredicate().isVariable()) || writePredicate(triple, strq, l, k, variables)!=null){
+
+                                if (!result.equals("Check (")) {
+                                    result += " / ";
                                 }
-                                if (i<gAlt.size()-1){
-                                    result+= ", ";
-                               }
-                            }
+                                System.out.println("2");
+                                result += writePredicate(triple, strq, l, k, variables);
                             }
                         }
                     }
-
-
-                    if (triple.getSubject().isURI()) {
-                        ArrayList<String> labS = label.getLabel(replaceProp(triple.getSubject().toString()), l, k);
-                        // we put the label in the position 0 of the output array getLabel
-                        String ss = "/" + labS.get(0);
-                        if (labS.size() == 2) {
-                                ss += " (" + retress(labS.get(1)) + ") ";
-                            }
-                        if (ss!=null) {
-                            result += ss;
-                        }
-                    }
-
-                    if (triple.getObject().isURI()) {
-                        ArrayList<String> labO = label.getLabel(replaceProp(triple.getObject().toString()), l, k);
-                        String so = labO.get(0);
-                        if (labO.size() == 2) {
-                            so += " (" + retress(labO.get(1)) + ") ";
-
-                        }
-                        if (so!=null && result!=null){
-                        result += "/" + so;
-                        }else if (so!=null && result==null){
-                            result+= so;
-                        }
-                    }
-
                     } else {
                     logger.info("it's not a triple");
                     result = null;
@@ -137,21 +143,23 @@ public class SPARQLToUser {
                 }
             }
 
-
+            if (p.getQuery().isAskType()){
+                result+=")";
+            }
         }else {
-            result = "";
+            result = "null";
         }
 
         // clean the result
         if (result != null) {
             result = result.replaceAll("/null", "");
+            result = result.replace("/  /", "/");
             result = result.replaceAll("null", "");
             result = result.replaceAll("/null/", "/");
             result = result.replaceAll("null/", "");
-            result = result.replaceAll("/instance of/", "/");
+       //     result = result.replaceAll("/instance of/", "/");
       //      result = result.replaceAll("instance of/", "");
         }
-
 
         return result;
     }
@@ -169,4 +177,71 @@ public class SPARQLToUser {
         return str;
     }
 
+    public String writePredicate(TriplePath triple, String strq, String l, String k, List<String> vars){
+        String res=null;
+        if (triple.getPredicate().isURI()) {
+            ArrayList<String> labP = label.getLabel(replaceProp(triple.getPredicate().toString()), l, k);
+            // for the predicate we don't need description So we put just the label
+            if (labP!=null){
+                String sp = labP.get(0);
+                res+= sp;
+            }else{
+                logger.info("there is not label for this uri !!" + replaceProp(triple.getPredicate().toString()));
+            }
+
+        } else if (triple.getPredicate().isVariable()) {
+//                        predicVar.add(triple.getPredicate().toString());
+            ArrayList<String> gAlt = null;
+        if (strq.contains("SELECT")) {
+            gAlt  = label.getAlternatives(strq.replaceFirst(vars.get(0), triple.getPredicate().toString().replace("?", "")), triple.getPredicate().toString(), l, k);
+        }else if (strq.contains("ASK")){
+            String newSal = strq.replace("ASK", "SELECT DISTINCT "+triple.getPredicate().toString());
+            gAlt = label.getAlternatives(newSal, triple.getPredicate().toString(), l, k);
+        }
+            
+            if (gAlt.size() != 0) {
+                for (int i = 0; i < gAlt.size(); i++) {
+                    ArrayList<String> getlabi = label.getLabel(replaceProp(gAlt.get(i)), l, k);
+                    if (getlabi.toString() != "[]") {
+                        if ((i == 0)) {
+                        }
+                        if (label.getLabel(replaceProp(gAlt.get(i)), l, k).size() != 0) {
+                            res += retress(label.getLabel(replaceProp(gAlt.get(i)), l, k).get(0));
+                        }
+                        if (i < gAlt.size() - 1) {
+                            res += ", ";
+                        }
+                    }
+                }
+            }
+  
+        }else {
+            res="null";
+        }
+
+        return res;
+    }
+    public String writeSubject(TriplePath triple,String strq, String l, String k){
+        String res=null;
+        ArrayList<String> labS = label.getLabel(replaceProp(triple.getSubject().toString()), l, k);
+        // we put the label in the position 0 of the output array getLabel
+        String ss =labS.get(0);
+        if (labS.size() == 2) {
+            ss += " (" + retress(labS.get(1)) + ") ";
+        }
+        if (ss!=null) {
+            res += ss;
+        }
+        return res;
+    } public String writeObject(TriplePath triple,String strq, String l, String k){
+        String res=null;
+        ArrayList<String> labO = label.getLabel(replaceProp(triple.getObject().toString()), l, k);
+        String so = labO.get(0);
+        if (labO.size() == 2) {
+            so += " (" + retress(labO.get(1)) + ") ";
+        }
+            res+= so;
+
+        return res;
+    }
 }

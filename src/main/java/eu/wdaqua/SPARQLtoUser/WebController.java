@@ -20,7 +20,7 @@ public class WebController {
         response.setHeader("Access-Control-Allow-Origin", "*");
     }
     @RequestMapping("/sparqltouser")
-    public SPARQLToUser sparqlToUser(@RequestParam(value="sparql", defaultValue = "SELECT ?x where { VALUES ?x { <http://www.wikidata.org/entity/Q42716> } }") String sparql,
+    public SPARQLToUser sparqlToUser(@RequestParam(value="sparql", defaultValue = "ASK WHERE { <http://www.wikidata.org/entity/Q14169302> <http://www.wikidata.org/prop/direct/P26> ?spouse .  ?spouse <http://www.w3.org/2000/01/rdf-schema#label> ?name .  }") String sparql,
                                      @RequestParam(value="lang", defaultValue = "en") String lang,
                                      @RequestParam(value="kb", defaultValue = "wikidata.org") String kb) {
             logger.info("Request sparql: {}, lang: {}, kb: {}",sparql,lang,kb);

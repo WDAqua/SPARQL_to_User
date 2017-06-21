@@ -26,6 +26,7 @@ public class Label {
                 + "  OPTIONAL { <" + s + ">  schema:description ?x FILTER( lang(?x)=\"" + l + "\" )} . "
                 + "  FILTER( lang(?o)=\"" + l + "\" )"
                 + "} limit 20 ";
+
         if (k.contains("wikidata")) {
             k = "https://query.wikidata.org/sparql";
             Query query1 = QueryFactory.create(res);
