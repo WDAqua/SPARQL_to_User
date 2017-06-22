@@ -32,6 +32,7 @@ public class SPARQLToUser {
     boolean contNotTriple = false;
     Label label = new Label();
 
+
     public SPARQLToUser() {
     } //empty constructor needed for spring
 
@@ -62,7 +63,7 @@ public class SPARQLToUser {
 
 
         ArrayList <String> prefx=new ArrayList<>();
-        prefx.add("null");
+        prefx.add(null);
         int dir=0;
         String aggregIntroduce = null;
         QueryParse p = new QueryParse();
@@ -91,6 +92,7 @@ public class SPARQLToUser {
                 if (p.getQuery().hasOrderBy()){
                     dir = p.getQuery().getOrderBy().get(0).getDirection(); // Direction c-a-d ASC / DESC
                 }
+
                 System.out.println("varCont "+varCompt);
                 System.out.println("varRech "+varRech);
                  if (p.getQuery().hasLimit()){
@@ -100,6 +102,7 @@ public class SPARQLToUser {
                     if (dir == -1) {
                         aggregIntroduce = "the most (";
                         prefx.add("the most (");
+                        System.out.println("THE MOST AAA");
                     }
                     else if (dir == 1) {
                         aggregIntroduce = "the least (";
@@ -162,7 +165,7 @@ public class SPARQLToUser {
                                 System.out.println("1");
                                 result += writePredicate(triple, strq, l, k, variables);
                             }
-                            if (!result.equals("Check (")) {
+                            if (!prefx.contains(result)) {
                                 result += " / ";
                             }
 
@@ -174,7 +177,7 @@ public class SPARQLToUser {
                                 result += writeSubject(triple, strq, l, k);
                             }
 
-                            if (!result.equals("Check (")) {
+                            if (!prefx.contains(result)) {
                                 result += " / ";
                             }
                             if (triple.getObject().isURI()) {
@@ -183,7 +186,7 @@ public class SPARQLToUser {
 
                             if ((triple.getPredicate().isURI()) || (triple.getPredicate().isVariable()) || writePredicate(triple, strq, l, k, variables) != null) {
 
-                                if (!result.equals("Check (")) {
+                                if (!prefx.contains(result)) {
                                     result += " / ";
                                 }
                                 System.out.println("2");

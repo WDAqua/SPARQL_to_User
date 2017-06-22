@@ -16,66 +16,61 @@ public class Label {
     private static final Logger logger = LoggerFactory.getLogger(Label.class);
 
     public ArrayList<String> getLabel(String s, String l, String k) {
-        logger.info("Heyoo I AM IN getLabel again !!!=====================>>");
         ArrayList<String> lab = new ArrayList<>();
-        String res
-                = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> "
-                + " PREFIX schema: <http://schema.org/> "
-                + " SELECT DISTINCT ?o ?x WHERE { "
-                + " <" + s + "> rdfs:label ?o . "
-                + "  OPTIONAL { <" + s + ">  schema:description ?x FILTER( lang(?x)=\"" + l + "\" )} . "
-                + "  FILTER( lang(?o)=\"" + l + "\" )"
-                + "} limit 20 ";
-
         if (k.contains("wikidata")) {
-            k = "https://query.wikidata.org/sparql";
-            Query query1 = QueryFactory.create(res);
-            QueryExecution qExe = QueryExecutionFactory.sparqlService(k, query1);
-            ResultSet result = qExe.execSelect();
-            while (result.hasNext()) {
-                QuerySolution rsnext = result.next();
-                lab.add(rsnext.getLiteral("o").getLexicalForm().toString());
-                System.out.println(rsnext.getLiteral("o").getLexicalForm().toString());
-                if (rsnext.getLiteral("x") != null) {
-                    lab.add(rsnext.getLiteral("x").getLexicalForm().toString());
+            KnowledgeBase kbWikiLabel = new Wikidata() {
+                @Override
+                public ArrayList<String> getLabel(String uri, String language, String kb) {
+                    return super.getLabel(uri, language, kb);
                 }
-            }
+            };
+            lab= kbWikiLabel.getLabel(s, l, k);
+
         } else if (k.contains("dbpedia")) {
-            k = "http://dbpedia.org/sparql";
-            Query query1 = QueryFactory.create(res);
-            QueryExecution qExe = QueryExecutionFactory.sparqlService(k, query1);
-            ResultSet result = qExe.execSelect();
-            while (result.hasNext()) {
-                QuerySolution rsnext = result.next();
-                lab.add(rsnext.getLiteral("o").getLexicalForm().toString());
-            }
+
+            KnowledgeBase kbdbpeLabel = new Dbpedia() {
+                @Override
+                public ArrayList<String> getLabel(String uri, String language, String kb) {
+                    return super.getLabel(uri, language, kb);
+                }
+            };
+            lab=kbdbpeLabel.getLabel(s, l, k);
         } else {
-            logger.info("---------------not dbpedia && not wikidata----------------");
+            logger.info("not dbpedia && not wikidata");
             lab=null;
         }
         return lab;
     }
 
     // in case of predicate variable, we take all possibles predicates for one query
-    public ArrayList<String> getAlternatives (String res,String  p, String l, String k){
+    public ArrayList<String> getAlternatives (String res,String p, String l, String k){
 
         ArrayList<String> altern = new ArrayList<>();
-        if (k.contains("wikidata"))
-            k = "https://query.wikidata.org/sparql";
-        else if (k.contains("dbpedia"))
-            k="http://dbpedia.org/sparql";
+        if (k.contains("wikidata")){
 
-            Query query1 = QueryFactory.create(res);
-            QueryExecution qExe = QueryExecutionFactory.sparqlService(k, query1);
-            ResultSet result;
-            result = qExe.execSelect();
-            while (result.hasNext()) {
-                QuerySolution rsnext = result.next();//
-                String s = p.replace("?","");
-                String nxt = rsnext.getResource(s).toString();
-                altern.add(nxt);
-            }
+            KnowledgeBase kbWikiAltern = new Wikidata() {
+                @Override
+                public ArrayList<String> getAlternative(String sparqlPV, String predicat, String language, String kb) {
+                    return super.getAlternative(sparqlPV, predicat, language, kb);
+                }
+            };
+            logger.info(" In GetAltern ===+++===+++===+++===+++===+++===+++====>> ");
 
+            altern=kbWikiAltern.getAlternative(res, p, l, k);
+
+
+        }else if (k.contains("dbpedia")){
+            KnowledgeBase kbdbpediaAltern = new Dbpedia() {
+                @Override
+                public ArrayList<String> getAlternative(String sparqlPV, String predicat, String language, String kb) {
+                    return super.getAlternative(sparqlPV, predicat, language, kb);
+                }
+            };
+        altern=kbdbpediaAltern.getAlternative(res, p, l, k);
+            logger.info("In GetAltern ===+++===+++===+++===+++===+++===+++====>> ");
+        }else {
+            logger.info("not dbpedia && not wikidata");
+        }
 
         return altern;
     }
