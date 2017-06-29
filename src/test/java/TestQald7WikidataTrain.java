@@ -38,6 +38,7 @@ public class TestQald7WikidataTrain {
                 String type = "string";
                 String spar="sparql";
                 String knowledge="wikidata.org";
+                String endpoint = "https://query.wikidata.org/sparql";
                 if (lang.get("language").equals(language)){
                     System.out.println("Question:"+lang.get("string").toString());
                     String expectedQuery="";
@@ -48,7 +49,7 @@ public class TestQald7WikidataTrain {
                         
                         SPARQLToUser s = new SPARQLToUser();
                         
-                        String reponse = s.go(expectedQuery, language, knowledge);
+                        String reponse = s.go(expectedQuery, language, knowledge, endpoint);
                         System.out.println(reponse);
                   }
                 }
