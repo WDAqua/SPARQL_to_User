@@ -23,7 +23,9 @@ public class SPARQLToUser {
     private String sparql;
     private String lang;
     private String kb;
+    private String ep;
     private String interpretation;
+
     public static String newline = System.getProperty("line.separator");
     String result;
     int goCount = 0;
@@ -36,11 +38,12 @@ public class SPARQLToUser {
     public SPARQLToUser() {
     } //empty constructor needed for spring
 
-    public SPARQLToUser(String sparql, String lang, String kb) {
+    public SPARQLToUser(String sparql, String lang, String kb, String ep) {
         this.sparql = sparql;
         this.lang = lang;
         this.kb = kb;
-        this.interpretation = go(sparql, lang, kb);
+        this.ep= ep;
+        this.interpretation = go(sparql, lang, kb, ep);
     }
 
     public String getSparql() {
@@ -59,7 +62,7 @@ public class SPARQLToUser {
         return interpretation;
     }
 
-    public String go(String strq, String l, String k) {
+    public String go(String strq, String l, String k, String ep) {
 
 
         ArrayList <String> prefx=new ArrayList<>();
@@ -74,7 +77,7 @@ public class SPARQLToUser {
         if (p.getValue() != null && p.getCanBeProcessed()) {
             StringUtils util = new StringUtils();
             String ur = p.getValue().getRows().get(0).get(p.getValue().getVars().get(0)).toString();
-            ArrayList<String> lab = label.getLabel(replaceProp(ur), l, k);
+            ArrayList<String> lab = label.getLabel(replaceProp(ur), l, k, ep);
             result = lab.get(0);
             if (lab.size() == 2) {
                 result += " (" + retressValue(lab.get(1)) + ")";
@@ -85,16 +88,12 @@ public class SPARQLToUser {
         else if (p.getTriples() != null && p.getCanBeProcessed()) {
             ListIterator<TriplePath> triples = p.getTriples();
             ArrayList<Node> nodes = new ArrayList<Node>();
-            if (p.getQuery().hasAggregators()) {
+            if (p.getQuery().hasAggregators() || p.getQuery().hasOrderBy()) {
 
-                String varCompt = p.getQuery().getAggregators().get(0).getAggregator().getExprList().get(0).getVarName().toString(); // find the variables into count
-                String varRech = p.getQuery().getResultVars().get(0).toString(); // find the principal variables
                 if (p.getQuery().hasOrderBy()){
                     dir = p.getQuery().getOrderBy().get(0).getDirection(); // Direction c-a-d ASC / DESC
                 }
 
-                System.out.println("varCont "+varCompt);
-                System.out.println("varRech "+varRech);
                  if (p.getQuery().hasLimit()){
                     int lim = (int) p.getQuery().getLimit(); // limit
                  }
@@ -114,7 +113,7 @@ public class SPARQLToUser {
                         prefx.add("how many (");
                     }
             }
-            if (p.getQuery().hasAggregators()) {
+            if (p.getQuery().hasAggregators() || p.getQuery().hasOrderBy()) {
                 result = aggregIntroduce;
             }
             if (p.getQuery().isAskType()) {
@@ -126,27 +125,23 @@ public class SPARQLToUser {
                 // ...and grab the subject
                 TriplePath triple = triples.next();
                 if (triple.isTriple()) {
-                    if (result != null && !p.getQuery().isAskType() && !p.getQuery().hasAggregators()) {
+                    if (result != null && !p.getQuery().isAskType() && !p.getQuery().hasAggregators() && !p.getQuery().hasOrderBy()) {
                         result += newline;
                     }
                     if (p.getQuery().isSelectType()) {
-                        if (!prefx.contains(result))
+                        if (!prefx.contains(result) && writePredicate(triple, strq, l, k, variables, ep)!=null)
                         result += " / ";
-                        if (writePredicate(triple, strq, l, k, variables)!=null) {
-                            result += writePredicate(triple, strq, l, k, variables);
+                        if (writePredicate(triple, strq, l, k, variables, ep)!=null) {
+                            result += writePredicate(triple, strq, l, k, variables, ep);
                         }
-                        if (triple.getSubject().isURI() && !prefx.contains(result)) {
+                        if (triple.getSubject().isURI() && !prefx.contains(result) && writeSubject(triple, strq, l, k)!=null) {
                             result += " / ";
-
                         }
-
                         if (triple.getSubject().isURI()) {
                             result += writeSubject(triple, strq, l, k);
                         }
-
-                        if (triple.getObject().isURI() && !prefx.contains(result)) {
+                        if (triple.getObject().isURI() && !prefx.contains(result) && writeObject(triple, strq, l, k)!=null) {
                             result += " / ";
-
                         }
                         if (triple.getObject().isURI()) {
                             result += writeObject(triple, strq, l, k);
@@ -158,14 +153,13 @@ public class SPARQLToUser {
                             if (triple.getSubject().isURI()) {
                                 result += writeSubject(triple, strq, l, k);
                             }
-                            if (((triple.getPredicate().isURI()) || (triple.getPredicate().isVariable())) && writePredicate(triple, strq, l, k, variables) != null) {
-                                if (!result.equals("Check (")) {
+                            if (((triple.getPredicate().isURI()) || (triple.getPredicate().isVariable())) && writePredicate(triple, strq, l, k, variables, ep) != null) {
+                                if (!prefx.contains(result) && writePredicate(triple, strq, l, k, variables, ep)!="") {
                                     result += " / ";
                                 }
-                                System.out.println("1");
-                                result += writePredicate(triple, strq, l, k, variables);
+                                result += writePredicate(triple, strq, l, k, variables, ep);
                             }
-                            if (!prefx.contains(result)) {
+                            if (!prefx.contains(result) && writeObject(triple, strq, l, k)!="") {
                                 result += " / ";
                             }
 
@@ -177,20 +171,20 @@ public class SPARQLToUser {
                                 result += writeSubject(triple, strq, l, k);
                             }
 
-                            if (!prefx.contains(result)) {
+                            if (!prefx.contains(result) && writeObject(triple, strq, l, k)!="") {
                                 result += " / ";
                             }
                             if (triple.getObject().isURI()) {
                                 result += writeObject(triple, strq, l, k);
                             }
 
-                            if ((triple.getPredicate().isURI()) || (triple.getPredicate().isVariable()) || writePredicate(triple, strq, l, k, variables) != null) {
+                            if ((triple.getPredicate().isURI()) || (triple.getPredicate().isVariable()) || writePredicate(triple, strq, l, k, variables, ep) != null) {
 
-                                if (!prefx.contains(result)) {
+                                if (!prefx.contains(result) && writePredicate(triple, strq, l, k, variables, ep)!="") {
                                     result += " / ";
                                 }
                                 System.out.println("2");
-                                result += writePredicate(triple, strq, l, k, variables);
+                                result += writePredicate(triple, strq, l, k, variables, ep);
                             }
                         }
                     }
@@ -201,7 +195,7 @@ public class SPARQLToUser {
                 }
             }
 
-            if (p.getQuery().isAskType() || p.getQuery().hasAggregators()) {
+            if (p.getQuery().isAskType() || p.getQuery().hasAggregators()|| p.getQuery().hasOrderBy()) {
                 result += ")";
             }
         } else {
@@ -240,12 +234,12 @@ public class SPARQLToUser {
         return str;
     }
 
-    public String writePredicate(TriplePath triple, String strq, String l, String k, List<String> vars) {
+    public String writePredicate(TriplePath triple, String strq, String l, String k, List<String> vars, String ep) {
         String res = null;
         if (triple.getPredicate().isURI()) {
-            ArrayList<String> labP = label.getLabel(replaceProp(triple.getPredicate().toString()), l, k);
+            ArrayList<String> labP = label.getLabel(replaceProp(triple.getPredicate().toString()), l, k, ep);
             // for the predicate we don't need description So we put just the label
-            if (labP != null) {
+            if (labP.size() != 0) {
                 String sp = labP.get(0);
                 res += sp;
             } else {
@@ -256,20 +250,20 @@ public class SPARQLToUser {
 //                        predicVar.add(triple.getPredicate().toString());
             ArrayList<String> gAlt = null;
             if (strq.contains("SELECT")) {
-                gAlt = label.getAlternatives(strq.replaceFirst(vars.get(0), triple.getPredicate().toString().replace("?", "")), triple.getPredicate().toString(), l, k);
+                gAlt = label.getAlternatives(strq.replaceFirst(vars.get(0), triple.getPredicate().toString().replace("?", "")), triple.getPredicate().toString(), l, k, ep);
             } else if (strq.contains("ASK")) {
                 String newSal = strq.replace("ASK", "SELECT DISTINCT " + triple.getPredicate().toString());
-                gAlt = label.getAlternatives(newSal, triple.getPredicate().toString(), l, k);
+                gAlt = label.getAlternatives(newSal, triple.getPredicate().toString(), l, k, ep);
             }
 
             if (gAlt.size() != 0) {
                 for (int i = 0; i < gAlt.size(); i++) {
-                    ArrayList<String> getlabi = label.getLabel(replaceProp(gAlt.get(i)), l, k);
+                    ArrayList<String> getlabi = label.getLabel(replaceProp(gAlt.get(i)), l, k, ep);
                     if (getlabi.toString() != "[]") {
                         if ((i == 0)) {
                         }
-                        if (label.getLabel(replaceProp(gAlt.get(i)), l, k).size() != 0) {
-                            res += retress(label.getLabel(replaceProp(gAlt.get(i)), l, k).get(0));
+                        if (label.getLabel(replaceProp(gAlt.get(i)), l, k, ep).size() != 0) {
+                            res += retress(label.getLabel(replaceProp(gAlt.get(i)), l, k, ep).get(0));
                         }
                         if (i < gAlt.size() - 1) {
                             res += ", ";
@@ -286,23 +280,31 @@ public class SPARQLToUser {
     }
 
     public String writeSubject(TriplePath triple, String strq, String l, String k) {
-        String res = null;
-        ArrayList<String> labS = label.getLabel(replaceProp(triple.getSubject().toString()), l, k);
+        String res=new String();
+        String ss=new String();
+        ArrayList<String> labS = label.getLabel(replaceProp(triple.getSubject().toString()), l, k, ep);
+        System.out.println("LABS: "+labS);
         // we put the label in the position 0 of the output array getLabel
-        String ss = labS.get(0);
+        if (labS.size() != 0) {
+            ss = labS.get(0);
+        }
         if (labS.size() == 2) {
             ss += " (" + retress(labS.get(1)) + ") ";
         }
         if (ss != null) {
             res += ss;
         }
+        System.out.println("WRITE SUBJECT"+res);
         return res;
     }
 
     public String writeObject(TriplePath triple, String strq, String l, String k) {
         String res = null;
-        ArrayList<String> labO = label.getLabel(replaceProp(triple.getObject().toString()), l, k);
-        String so = labO.get(0);
+        String so = null;
+        ArrayList<String> labO = label.getLabel(replaceProp(triple.getObject().toString()), l, k, ep);
+        if (labO.size()!=0) {
+            so = labO.get(0);
+        }
         if (labO.size() == 2) {
             so += " (" + retress(labO.get(1)) + ") ";
         }

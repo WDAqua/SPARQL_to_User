@@ -20,11 +20,12 @@ public class WebController {
         response.setHeader("Access-Control-Allow-Origin", "*");
     }
     @RequestMapping("/sparqltouser")
-    public SPARQLToUser sparqlToUser(@RequestParam(value="sparql", defaultValue = "SELECT DISTINCT ?uri WHERE { <http://www.wikidata.org/entity/Q937> ?uri <http://www.wikidata.org/prop/direct/P184> }") String sparql,
+    public SPARQLToUser sparqlToUser(@RequestParam(value="sparql", defaultValue = "SELECT DISTINCT ?uri WHERE { <http://www.wikidata.org/entity/Q937> <http://www.wikidata.org/prop/direct/P184> ?uri}") String sparql,
                                      @RequestParam(value="lang", defaultValue = "en") String lang,
-                                     @RequestParam(value="kb", defaultValue = "wikidata.org") String kb) {
-            logger.info("Request sparql: {}, lang: {}, kb: {}",sparql,lang,kb);
-            SPARQLToUser s = new SPARQLToUser(sparql, lang, kb);
+                                     @RequestParam(value="kb", defaultValue = "wikidata") String kb,
+                                     @RequestParam(value="endpoint", defaultValue = "https://query.wikidata.org/sparql") String endpoint) {
+            logger.info("Request sparql: {}, lang: {}, kb: {}",sparql,lang,kb,endpoint);
+            SPARQLToUser s = new SPARQLToUser(sparql, lang, kb, endpoint);
             logger.info("Result {}",s.getInterpretation());
             return s;
 

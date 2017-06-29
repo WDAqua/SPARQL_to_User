@@ -1,12 +1,13 @@
 package eu.wdaqua.SPARQLtoUser;
 
-import org.apache.jena.query.*;
+import eu.wdaqua.SPARQLtoUser.knowledgebase.Dbpedia;
+import eu.wdaqua.SPARQLtoUser.knowledgebase.KnowledgeBase;
 
+import eu.wdaqua.SPARQLtoUser.knowledgebase.Wikidata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Youssef on 16/05/17.
@@ -15,26 +16,15 @@ import java.util.List;
 public class Label {
     private static final Logger logger = LoggerFactory.getLogger(Label.class);
 
-    public ArrayList<String> getLabel(String s, String l, String k) {
-        ArrayList<String> lab = new ArrayList<>();
+    public ArrayList<String> getLabel(String s, String l, String k, String endpoint) {
+        ArrayList<String> lab;
+
         if (k.contains("wikidata")) {
-            KnowledgeBase kbWikiLabel = new Wikidata() {
-                @Override
-                public ArrayList<String> getLabel(String uri, String language, String kb) {
-                    return super.getLabel(uri, language, kb);
-                }
-            };
-            lab= kbWikiLabel.getLabel(s, l, k);
-
+            KnowledgeBase kbWikiLabel = new Wikidata(endpoint);
+            lab= kbWikiLabel.getLabel(s, l, k, endpoint);
         } else if (k.contains("dbpedia")) {
-
-            KnowledgeBase kbdbpeLabel = new Dbpedia() {
-                @Override
-                public ArrayList<String> getLabel(String uri, String language, String kb) {
-                    return super.getLabel(uri, language, kb);
-                }
-            };
-            lab=kbdbpeLabel.getLabel(s, l, k);
+            KnowledgeBase kbdbpeLabel = new Dbpedia(endpoint);
+            lab=kbdbpeLabel.getLabel(s, l, k, endpoint);
         } else {
             logger.info("not dbpedia && not wikidata");
             lab=null;
@@ -43,32 +33,26 @@ public class Label {
     }
 
     // in case of predicate variable, we take all possibles predicates for one query
-    public ArrayList<String> getAlternatives (String res,String p, String l, String k){
+    public ArrayList<String> getAlternatives (String res,String p, String l, String k, String endpoint){
 
         ArrayList<String> altern = new ArrayList<>();
+
+
         if (k.contains("wikidata")){
 
-            KnowledgeBase kbWikiAltern = new Wikidata() {
-                @Override
-                public ArrayList<String> getAlternative(String sparqlPV, String predicat, String language, String kb) {
-                    return super.getAlternative(sparqlPV, predicat, language, kb);
-                }
-            };
+            KnowledgeBase kbWikiAltern = new Wikidata(endpoint);
             logger.info(" In GetAltern ===+++===+++===+++===+++===+++===+++====>> ");
 
-            altern=kbWikiAltern.getAlternative(res, p, l, k);
+            altern=kbWikiAltern.getAlternative(res, p, l, k, endpoint);
 
 
         }else if (k.contains("dbpedia")){
-            KnowledgeBase kbdbpediaAltern = new Dbpedia() {
-                @Override
-                public ArrayList<String> getAlternative(String sparqlPV, String predicat, String language, String kb) {
-                    return super.getAlternative(sparqlPV, predicat, language, kb);
-                }
-            };
-        altern=kbdbpediaAltern.getAlternative(res, p, l, k);
+            KnowledgeBase kbdbpediaAltern = new Dbpedia(endpoint);
+        altern=kbdbpediaAltern.getAlternative(res, p, l, k, endpoint);
             logger.info("In GetAltern ===+++===+++===+++===+++===+++===+++====>> ");
-        }else {
+        }
+
+        else {
             logger.info("not dbpedia && not wikidata");
         }
 
