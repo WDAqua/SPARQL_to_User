@@ -23,7 +23,14 @@ public class WebController {
     public SPARQLToUser sparqlToUser(@RequestParam(value="sparql", defaultValue = "SELECT DISTINCT ?uri WHERE { <http://www.wikidata.org/entity/Q937> <http://www.wikidata.org/prop/direct/P184> ?uri}") String sparql,
                                      @RequestParam(value="lang", defaultValue = "en") String lang,
                                      @RequestParam(value="kb", defaultValue = "wikidata") String kb,
-                                     @RequestParam(value="endpoint", defaultValue = "https://query.wikidata.org/sparql") String endpoint) {
+                                     @RequestParam(value="endpoint") String endpoint) {
+            if (kb.contains("wikidata")){
+                endpoint = "https://query.wikidata.org/sparql";
+            }else if (kb.contains("dbpedia")){
+                endpoint = "https://dbpedia.org/sparql";
+            }else {
+                logger.info("The endpoint is not existing");
+            }
             logger.info("Request sparql: {}, lang: {}, kb: {}",sparql,lang,kb,endpoint);
             SPARQLToUser s = new SPARQLToUser(sparql, lang, kb, endpoint);
             logger.info("Result {}",s.getInterpretation());
