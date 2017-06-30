@@ -28,7 +28,7 @@ public class Dbpedia extends KnowledgeBase {
                 + "} limit 20 ";
 
         Query query1 = QueryFactory.create(res);
-        QueryExecution qExe = QueryExecutionFactory.sparqlService(this.endpoint, query1);
+        QueryExecution qExe = QueryExecutionFactory.sparqlService(ep, query1);
         ResultSet result = qExe.execSelect();
         while (result.hasNext()) {
             QuerySolution rsnext = result.next();
@@ -44,7 +44,7 @@ public class Dbpedia extends KnowledgeBase {
 
         ArrayList<String> altern = new ArrayList<>();
         Query query1 = QueryFactory.create(res);
-        QueryExecution qExe = QueryExecutionFactory.sparqlService(this.endpoint, query1);
+        QueryExecution qExe = QueryExecutionFactory.sparqlService(ep, query1);
         ResultSet result;
         result = qExe.execSelect();
         while (result.hasNext()) {

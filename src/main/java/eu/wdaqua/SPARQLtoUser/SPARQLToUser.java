@@ -67,6 +67,7 @@ public class SPARQLToUser {
 
         ArrayList <String> prefx=new ArrayList<>();
         prefx.add(null);
+        prefx.add("");
         int dir=0;
         String aggregIntroduce = null;
         QueryParse p = new QueryParse();
@@ -129,21 +130,21 @@ public class SPARQLToUser {
                         result += newline;
                     }
                     if (p.getQuery().isSelectType()) {
-                        if (!prefx.contains(result) && writePredicate(triple, strq, l, k, variables, ep)!=null)
-                        result += " / ";
+                        if (!prefx.contains(result) && writePredicate(triple, strq, l, k, variables, ep)!="")
+                            result += " / ";
                         if (writePredicate(triple, strq, l, k, variables, ep)!=null) {
                             result += writePredicate(triple, strq, l, k, variables, ep);
                         }
-                        if (triple.getSubject().isURI() && !prefx.contains(result) && writeSubject(triple, strq, l, k)!=null) {
+                        if (triple.getSubject().isURI()) {
+                        if (!prefx.contains(result) && writeSubject(triple, strq, l, k)!="") {
                             result += " / ";
                         }
-                        if (triple.getSubject().isURI()) {
                             result += writeSubject(triple, strq, l, k);
                         }
-                        if (triple.getObject().isURI() && !prefx.contains(result) && writeObject(triple, strq, l, k)!=null) {
+                        if (triple.getObject().isURI()) {
+                        if (!prefx.contains(result) && writeObject(triple, strq, l, k)!="") {
                             result += " / ";
                         }
-                        if (triple.getObject().isURI()) {
                             result += writeObject(triple, strq, l, k);
                         }
                     } else if (p.getQuery().isAskType()) {
@@ -153,7 +154,7 @@ public class SPARQLToUser {
                             if (triple.getSubject().isURI()) {
                                 result += writeSubject(triple, strq, l, k);
                             }
-                            if (((triple.getPredicate().isURI()) || (triple.getPredicate().isVariable())) && writePredicate(triple, strq, l, k, variables, ep) != null) {
+                            if ((triple.getPredicate().isURI()) || (triple.getPredicate().isVariable())) {
                                 if (!prefx.contains(result) && writePredicate(triple, strq, l, k, variables, ep)!="") {
                                     result += " / ";
                                 }
@@ -162,7 +163,6 @@ public class SPARQLToUser {
                             if (!prefx.contains(result) && writeObject(triple, strq, l, k)!="") {
                                 result += " / ";
                             }
-
                             if (triple.getObject().isURI()) {
                                 result += writeObject(triple, strq, l, k);
                             }
@@ -170,20 +170,18 @@ public class SPARQLToUser {
                             if (triple.getSubject().isURI()) {
                                 result += writeSubject(triple, strq, l, k);
                             }
-
+                            if (triple.getObject().isURI()) {
                             if (!prefx.contains(result) && writeObject(triple, strq, l, k)!="") {
                                 result += " / ";
                             }
-                            if (triple.getObject().isURI()) {
                                 result += writeObject(triple, strq, l, k);
                             }
 
-                            if ((triple.getPredicate().isURI()) || (triple.getPredicate().isVariable()) || writePredicate(triple, strq, l, k, variables, ep) != null) {
+                            if ((triple.getPredicate().isURI()) || (triple.getPredicate().isVariable())) {
 
                                 if (!prefx.contains(result) && writePredicate(triple, strq, l, k, variables, ep)!="") {
                                     result += " / ";
                                 }
-                                System.out.println("2");
                                 result += writePredicate(triple, strq, l, k, variables, ep);
                             }
                         }
@@ -205,7 +203,6 @@ public class SPARQLToUser {
         // clean the result
         if (result != null) {
             result = result.replaceAll("/null", "");
-            result = result.replace("/  /", "/");
             result = result.replaceAll("null", "");
             result = result.replaceAll("/null/", "/");
             result = result.replaceAll("null/", "");
@@ -235,7 +232,7 @@ public class SPARQLToUser {
     }
 
     public String writePredicate(TriplePath triple, String strq, String l, String k, List<String> vars, String ep) {
-        String res = null;
+        String res = "";
         if (triple.getPredicate().isURI()) {
             ArrayList<String> labP = label.getLabel(replaceProp(triple.getPredicate().toString()), l, k, ep);
             // for the predicate we don't need description So we put just the label
@@ -280,8 +277,8 @@ public class SPARQLToUser {
     }
 
     public String writeSubject(TriplePath triple, String strq, String l, String k) {
-        String res=new String();
-        String ss=new String();
+        String res="";
+        String ss="";
         ArrayList<String> labS = label.getLabel(replaceProp(triple.getSubject().toString()), l, k, ep);
         System.out.println("LABS: "+labS);
         // we put the label in the position 0 of the output array getLabel
@@ -299,8 +296,8 @@ public class SPARQLToUser {
     }
 
     public String writeObject(TriplePath triple, String strq, String l, String k) {
-        String res = null;
-        String so = null;
+        String res = "";
+        String so = "";
         ArrayList<String> labO = label.getLabel(replaceProp(triple.getObject().toString()), l, k, ep);
         if (labO.size()!=0) {
             so = labO.get(0);
