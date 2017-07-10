@@ -19,16 +19,18 @@ public class WebController {
         response.setHeader("Access-Control-Allow-Origin", "*");
     }
     @RequestMapping("/sparqltouser")
-    public SPARQLToUser sparqlToUser(@RequestParam(value="sparql", defaultValue = "ASK WHERE { <http://www.wikidata.org/entity/Q7758086> <http://www.wikidata.org/entity/Q76>  ?x .}") String sparql,
+    public SPARQLToUser sparqlToUser(@RequestParam(value="sparql", defaultValue = "SELECT ?x where { VALUES ?x { <http://musicbrainz.org/track/347808#_> } }") String sparql,
                                      @RequestParam(value="lang", defaultValue = "en") String lang,
-                                     @RequestParam(value="kb", defaultValue = "wikidata") String kb,
-                                     @RequestParam(value="endpoint", defaultValue = "https://query.wikidata.org/sparql") String endpoint) {
+                                     @RequestParam(value="kb", defaultValue = "musicbrainz") String kb,
+                                     @RequestParam(value="endpoint", defaultValue = "http://wdaqua.univ-st-etienne.fr/hdt-endpoint/musicbrainz/sparql") String endpoint) {
             if (kb.contains("wikidata")){
                 endpoint = "https://query.wikidata.org/sparql";
             }else if (kb.contains("dbpedia")){
                 endpoint = "https://dbpedia.org/sparql";
+            }else if (kb.contains("musicbrainz")){
+                endpoint = "http://wdaqua.univ-st-etienne.fr/hdt-endpoint/musicbrainz/sparql";
             }else {
-                logger.info("The endpoint is not existing");
+                logger.info("The endpoint is not wikidata nor dbpedia neither musicbrainz");
             }
         logger.info("ENDPOINT: ",endpoint);
 
