@@ -43,7 +43,8 @@ public class SPARQLToUser {
         this.lang = lang;
         this.kb = kb;
         this.ep= ep;
-        this.interpretation = go(sparql, lang, kb, ep);
+            this.interpretation = go(sparql, lang, kb, ep);
+
     }
 
     public String getSparql() {
@@ -130,10 +131,12 @@ public class SPARQLToUser {
                         result += newline;
                     }
                     if (p.getQuery().isSelectType()) {
-                        if (!prefx.contains(result) && writePredicate(triple, strq, l, k, variables, ep)!="")
+                        if (!prefx.contains(result) && writePredicate(triple, strq, l, k, variables, ep, p.getQuery())!="")
                             result += " / ";
-                        if (writePredicate(triple, strq, l, k, variables, ep)!=null) {
-                            result += writePredicate(triple, strq, l, k, variables, ep);
+                        System.out.println("This  is your search variables: "+ variables);
+
+                        if (writePredicate(triple, strq, l, k, variables, ep, p.getQuery())!=null) {
+                            result += writePredicate(triple, strq, l, k, variables, ep, p.getQuery());
                         }
                         if (triple.getSubject().isURI()) {
                         if (!prefx.contains(result) && writeSubject(triple, strq, l, k)!="") {
@@ -155,10 +158,10 @@ public class SPARQLToUser {
                                 result += writeSubject(triple, strq, l, k);
                             }
                             if ((triple.getPredicate().isURI()) || (triple.getPredicate().isVariable())) {
-                                if (!prefx.contains(result) && writePredicate(triple, strq, l, k, variables, ep)!="") {
+                                if (!prefx.contains(result) && writePredicate(triple, strq, l, k, variables, ep, p.getQuery())!="") {
                                     result += " / ";
                                 }
-                                result += writePredicate(triple, strq, l, k, variables, ep);
+                                result += writePredicate(triple, strq, l, k, variables, ep, p.getQuery());
                             }
                             if (!prefx.contains(result) && writeObject(triple, strq, l, k)!="") {
                                 result += " / ";
@@ -179,10 +182,10 @@ public class SPARQLToUser {
 
                             if ((triple.getPredicate().isURI()) || (triple.getPredicate().isVariable())) {
 
-                                if (!prefx.contains(result) && writePredicate(triple, strq, l, k, variables, ep)!="") {
+                                if (!prefx.contains(result) && writePredicate(triple, strq, l, k, variables, ep, p.getQuery())!="") {
                                     result += " / ";
                                 }
-                                result += writePredicate(triple, strq, l, k, variables, ep);
+                                result += writePredicate(triple, strq, l, k, variables, ep, p.getQuery());
                             }
                         }
                     }
@@ -231,7 +234,8 @@ public class SPARQLToUser {
         return str;
     }
 
-    public String writePredicate(TriplePath triple, String strq, String l, String k, List<String> vars, String ep) {
+    public String writePredicate(TriplePath triple, String strq, String l, String k, List<String> vars, String ep, org.apache.jena.query.Query q) {
+
         String res = "";
         if (triple.getPredicate().isURI()) {
             ArrayList<String> labP = label.getLabel(replaceProp(triple.getPredicate().toString()), l, k, ep);
@@ -240,19 +244,20 @@ public class SPARQLToUser {
                 String sp = labP.get(0);
                 res += sp;
             } else {
-                logger.info("there is not label for this uri !!" + replaceProp(triple.getPredicate().toString()));
+                logger.info("there is no label for this uri !!" + replaceProp(triple.getPredicate().toString()));
             }
 
         } else if (triple.getPredicate().isVariable()) {
-//                        predicVar.add(triple.getPredicate().toString());
             ArrayList<String> gAlt = null;
             if (strq.contains("SELECT")) {
-                gAlt = label.getAlternatives(strq.replaceFirst(vars.get(0), triple.getPredicate().toString().replace("?", "")), triple.getPredicate().toString(), l, k, ep);
-            } else if (strq.contains("ASK")) {
-                String newSal = strq.replace("ASK", "SELECT DISTINCT " + triple.getPredicate().toString());
-                gAlt = label.getAlternatives(newSal, triple.getPredicate().toString(), l, k, ep);
+        //        System.out.println("query get alternative"+ strq.replaceFirst(vars.get(0), triple.getPredicate().toString().replace("?", "")));
+                String s = "SELECT ";
+                s+= triple.getPredicate().toString();
+                s+= " WHERE ";
+                s+=q.getQueryPattern().toString();
+                System.out.println("getPrologue: "+s);
+                gAlt = label.getAlternatives(s, triple.getPredicate().toString(), l, k, ep);
             }
-
             if (gAlt.size() != 0) {
                 for (int i = 0; i < gAlt.size(); i++) {
                     ArrayList<String> getlabi = label.getLabel(replaceProp(gAlt.get(i)), l, k, ep);
