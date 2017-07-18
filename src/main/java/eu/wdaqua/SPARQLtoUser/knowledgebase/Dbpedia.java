@@ -17,27 +17,30 @@ public class Dbpedia extends KnowledgeBase {
 
     @Override
     public ArrayList<String> getLabel(String uri, String language, String kb, String ep) {
-        ArrayList<String> labels = new ArrayList<>();
-        String res
-                = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> "
-                + " PREFIX schema: <http://schema.org/> "
-                + " SELECT DISTINCT ?o ?x WHERE { "
-                + " <" + uri + "> rdfs:label ?o . "
-                + "  OPTIONAL { <" + uri + ">  schema:description ?x FILTER( lang(?x)=\"" + language + "\" )} . "
-                + "  FILTER( lang(?o)=\"" + language + "\" )"
-                + "} limit 20 ";
+        if (uri.contains("dbpedia")) {
+            ArrayList<String> labels = new ArrayList<>();
+            String res
+                    = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> "
+                    + " PREFIX schema: <http://schema.org/> "
+                    + " SELECT DISTINCT ?o ?x WHERE { "
+                    + " <" + uri + "> rdfs:label ?o . "
+                    + "  FILTER( lang(?o)=\"" + language + "\" )"
+                    + "} limit 20 ";
+            System.out.println(" i am the query get Label from dbpedia " + res);
+            Query query1 = QueryFactory.create(res);
+            QueryExecution qExe = QueryExecutionFactory.sparqlService(ep, query1);
+            ResultSet result = qExe.execSelect();
+            while (result.hasNext()) {
+                QuerySolution rsnext = result.next();
+                labels.add(rsnext.getLiteral("o").getLexicalForm().toString());
+            }
+            System.out.println(" i am the result get Label from dbpedia " + labels);
 
-        Query query1 = QueryFactory.create(res);
-        QueryExecution qExe = QueryExecutionFactory.sparqlService(ep, query1);
-        ResultSet result = qExe.execSelect();
-        while (result.hasNext()) {
-            QuerySolution rsnext = result.next();
-            labels.add(rsnext.getLiteral("o").getLexicalForm().toString());
+            return labels;
+        } else {
+            return null;
         }
-
-        return labels;
     }
-
     @Override
     public ArrayList<String> getAlternative(String res, String predicate, String language, String kb, String ep) {
 

@@ -19,10 +19,10 @@ public class WebController {
         response.setHeader("Access-Control-Allow-Origin", "*");
     }
     @RequestMapping("/sparqltouser")
-    public SPARQLToUser sparqlToUser(@RequestParam(value="sparql", defaultValue = " SELECT (COUNT(DISTINCT ?x) as ?count) WHERE { ?x <http://www.wikidata.org/prop/direct/P40> <http://www.wikidata.org/entity/Q76> . ?x ?q <http://www.wikidata.org/entity/Q18643532> . }") String sparql,
+    public SPARQLToUser sparqlToUser(@RequestParam(value="sparql", defaultValue = "SELECT DISTINCT ?x WHERE { <http://dbpedia.org/resource/Mark_Zuckerberg> ?p ?x . ?x ?p3 <http://dbpedia.org/ontology/University> . } limit 1000") String sparql,
                                      @RequestParam(value="lang", defaultValue = "en") String lang,
-                                     @RequestParam(value="kb", defaultValue = "wikidata") String kb,
-                                     @RequestParam(value="endpoint", defaultValue = "https://query.wikidata.org/sparql") String endpoint) {
+                                     @RequestParam(value="kb", defaultValue = "dbpedia") String kb,
+                                     @RequestParam(value="endpoint", defaultValue = "https://dbpedia.org/sparq") String endpoint) {
             if (kb.contains("wikidata")){
                 endpoint = "https://query.wikidata.org/sparql";
             }else if (kb.contains("dbpedia")){

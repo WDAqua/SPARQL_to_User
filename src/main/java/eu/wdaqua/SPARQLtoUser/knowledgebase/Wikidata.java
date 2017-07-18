@@ -47,8 +47,6 @@ public class Wikidata extends KnowledgeBase {
 
         ArrayList<String> altern = new ArrayList<>();
         System.out.println("This  is your Predicate variable: "+ predicate);
-        System.out.println("This  is your res: "+ res);
-
 
         Query query1 = QueryFactory.create(res);
         QueryExecution qExe = QueryExecutionFactory.sparqlService(ep, query1);

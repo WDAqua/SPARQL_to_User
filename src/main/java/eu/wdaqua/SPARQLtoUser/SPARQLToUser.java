@@ -43,7 +43,7 @@ public class SPARQLToUser {
         this.lang = lang;
         this.kb = kb;
         this.ep= ep;
-            this.interpretation = go(sparql, lang, kb, ep);
+        this.interpretation = go(sparql, lang, kb, ep);
 
     }
 
@@ -96,24 +96,24 @@ public class SPARQLToUser {
                     dir = p.getQuery().getOrderBy().get(0).getDirection(); // Direction c-a-d ASC / DESC
                 }
 
-                 if (p.getQuery().hasLimit()){
+                if (p.getQuery().hasLimit()){
                     int lim = (int) p.getQuery().getLimit(); // limit
-                 }
+                }
 
-                    if (dir == -1) {
-                        aggregIntroduce = "the most (";
-                        prefx.add("the most (");
-                        System.out.println("THE MOST AAA");
-                    }
-                    else if (dir == 1) {
-                        aggregIntroduce = "the least (";
-                        prefx.add("the least (");
+                if (dir == -1) {
+                    aggregIntroduce = "the most (";
+                    prefx.add("the most (");
+                    System.out.println("THE MOST AAA");
+                }
+                else if (dir == 1) {
+                    aggregIntroduce = "the least (";
+                    prefx.add("the least (");
 
 
-                    }else {
-                        aggregIntroduce = "how many (";
-                        prefx.add("how many (");
-                    }
+                }else {
+                    aggregIntroduce = "how many (";
+                    prefx.add("how many (");
+                }
             }
             if (p.getQuery().hasAggregators() || p.getQuery().hasOrderBy()) {
                 result = aggregIntroduce;
@@ -139,15 +139,15 @@ public class SPARQLToUser {
                             result += writePredicate(triple, strq, l, k, variables, ep, p.getQuery());
                         }
                         if (triple.getSubject().isURI()) {
-                        if (!prefx.contains(result) && writeSubject(triple, strq, l, k)!="") {
-                            result += " / ";
-                        }
+                            if (!prefx.contains(result) && writeSubject(triple, strq, l, k)!="") {
+                                result += " / ";
+                            }
                             result += writeSubject(triple, strq, l, k);
                         }
                         if (triple.getObject().isURI()) {
-                        if (!prefx.contains(result) && writeObject(triple, strq, l, k)!="") {
-                            result += " / ";
-                        }
+                            if (!prefx.contains(result) && writeObject(triple, strq, l, k)!="") {
+                                result += " / ";
+                            }
                             result += writeObject(triple, strq, l, k);
                         }
                     } else if (p.getQuery().isAskType()) {
@@ -174,9 +174,9 @@ public class SPARQLToUser {
                                 result += writeSubject(triple, strq, l, k);
                             }
                             if (triple.getObject().isURI()) {
-                            if (!prefx.contains(result) && writeObject(triple, strq, l, k)!="") {
-                                result += " / ";
-                            }
+                                if (!prefx.contains(result) && writeObject(triple, strq, l, k)!="") {
+                                    result += " / ";
+                                }
                                 result += writeObject(triple, strq, l, k);
                             }
 
@@ -211,6 +211,9 @@ public class SPARQLToUser {
             result = result.replaceAll("null/", "");
             result = result.replaceAll("/ instance of /", "/");
             result = result.replaceAll("instance of /", "");
+            result = result.replaceAll("Link from a Wikipage to ano..., ", "");
+            result = result.replaceAll("Link from a Wikipage to ano... /", "");
+
         }
 
         return result;
@@ -249,21 +252,18 @@ public class SPARQLToUser {
 
         } else if (triple.getPredicate().isVariable()) {
             ArrayList<String> gAlt = null;
-            if (strq.contains("SELECT")) {
-        //        System.out.println("query get alternative"+ strq.replaceFirst(vars.get(0), triple.getPredicate().toString().replace("?", "")));
-                String s = "SELECT ";
-                s+= triple.getPredicate().toString();
-                s+= " WHERE ";
-                s+=q.getQueryPattern().toString();
-                System.out.println("getPrologue: "+s);
-                gAlt = label.getAlternatives(s, triple.getPredicate().toString(), l, k, ep);
-            }
+            //        System.out.println("query get alternative"+ strq.replaceFirst(vars.get(0), triple.getPredicate().toString().replace("?", "")));
+            String s = "SELECT DISTINCT ";
+            s+= triple.getPredicate().toString();
+            s+= " WHERE ";
+            s+=q.getQueryPattern().toString();
+            s+= " limit 1000 ";
+            gAlt = label.getAlternatives(s, triple.getPredicate().toString(), l, k, ep);
+
             if (gAlt.size() != 0) {
                 for (int i = 0; i < gAlt.size(); i++) {
                     ArrayList<String> getlabi = label.getLabel(replaceProp(gAlt.get(i)), l, k, ep);
-                    if (getlabi.toString() != "[]") {
-                        if ((i == 0)) {
-                        }
+                    if (getlabi!= null) {
                         if (label.getLabel(replaceProp(gAlt.get(i)), l, k, ep).size() != 0) {
                             res += retress(label.getLabel(replaceProp(gAlt.get(i)), l, k, ep).get(0));
                         }
@@ -285,7 +285,6 @@ public class SPARQLToUser {
         String res="";
         String ss="";
         ArrayList<String> labS = label.getLabel(replaceProp(triple.getSubject().toString()), l, k, ep);
-        System.out.println("LABS: "+labS);
         // we put the label in the position 0 of the output array getLabel
         if (labS.size() != 0) {
             ss = labS.get(0);

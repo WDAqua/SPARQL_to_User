@@ -45,20 +45,20 @@ public class Label {
         if (k.contains("wikidata")){
 
             KnowledgeBase kbWikiAltern = new Wikidata(endpoint);
-            logger.info(" In GetAltern ===+++===+++===+++===+++===+++===+++====>> ");
-
+            logger.info(" In GetAltern wikidata===+++===+++===+++===+++===+++===+++====>> ");
             altern=kbWikiAltern.getAlternative(res, p, l, k, endpoint);
 
 
         }else if (k.contains("dbpedia")){
             KnowledgeBase kbdbpediaAltern = new Dbpedia(endpoint);
         altern=kbdbpediaAltern.getAlternative(res, p, l, k, endpoint);
-            logger.info("In GetAltern ===+++===+++===+++===+++===+++===+++====>> ");
+            logger.info("In GetAltern dbPedia ===+++===+++===+++===+++===+++===+++====>> ", altern);
+
 
         }else if (k.contains("musicbrainz")){
         KnowledgeBase kbmusicbrainzAltern = new musicbrainz(endpoint);
         altern=kbmusicbrainzAltern.getAlternative(res, p, l, k, endpoint);
-        logger.info("In GetAltern ===+++===+++===+++===+++===+++===+++====>> ");
+        logger.info("In GetAltern musicBranz===+++===+++===+++===+++===+++===+++====>> ");
         }
 
         else {
