@@ -139,13 +139,13 @@ public class SPARQLToUser {
                             result += writePredicate(triple, strq, l, k, variables, ep, p.getQuery());
                         }
                         if (triple.getSubject().isURI()) {
-                            if (!prefx.contains(result) && writeSubject(triple, strq, l, k)!="") {
+                            if (!prefx.contains(result) && writeSubject(triple, strq, l, k)!=null) {
                                 result += " / ";
                             }
                             result += writeSubject(triple, strq, l, k);
                         }
                         if (triple.getObject().isURI()) {
-                            if (!prefx.contains(result) && writeObject(triple, strq, l, k)!="") {
+                            if (!prefx.contains(result) && writeObject(triple, strq, l, k)!=null) {
                                 result += " / ";
                             }
                             result += writeObject(triple, strq, l, k);
@@ -163,7 +163,7 @@ public class SPARQLToUser {
                                 }
                                 result += writePredicate(triple, strq, l, k, variables, ep, p.getQuery());
                             }
-                            if (!prefx.contains(result) && writeObject(triple, strq, l, k)!="") {
+                            if (!prefx.contains(result) && writeObject(triple, strq, l, k)!=null) {
                                 result += " / ";
                             }
                             if (triple.getObject().isURI()) {
@@ -286,7 +286,7 @@ public class SPARQLToUser {
         String ss="";
         ArrayList<String> labS = label.getLabel(replaceProp(triple.getSubject().toString()), l, k, ep);
         // we put the label in the position 0 of the output array getLabel
-        if (labS.size() != 0) {
+        if (labS.size() != 0 ) {
             ss = labS.get(0);
         }
         if (labS.size() == 2) {
@@ -302,8 +302,9 @@ public class SPARQLToUser {
     public String writeObject(TriplePath triple, String strq, String l, String k) {
         String res = "";
         String so = "";
+
         ArrayList<String> labO = label.getLabel(replaceProp(triple.getObject().toString()), l, k, ep);
-        if (labO.size()!=0) {
+        if (labO.size()!=0 && labO!=null) {
             so = labO.get(0);
         }
         if (labO.size() == 2) {

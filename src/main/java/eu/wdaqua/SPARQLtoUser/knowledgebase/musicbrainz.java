@@ -23,16 +23,21 @@ public class musicbrainz extends KnowledgeBase  {
                 "  OPTIONAL{ " +
                 //"<" + value + "> rdfs:label ?label . FILTER (lang(?label)=\""+ lang +"\" || lang(?label)=\"en\" || lang(?label)=\"de\" || lang(?label)=\"fr\" || lang(?label)=\"it\")" +
                 "    <" + uri + "> foaf:name ?label . " +
-                "  } " +
+           //     "  FILTER( lang(?label)=\"" + language + "\" )" +
+                "} " +
                 "  OPTIONAL{ " +
                 "    <" + uri + ">  <http://purl.org/dc/elements/1.1/title> ?label . " +
-                "  } " +
+            //   "  FILTER( lang(?label)=\"" + language + "\" )" +
+                "} " +
                 "  OPTIONAL{ " +
                 "    <" + uri + ">  <http://www.w3.org/2000/01/rdf-schema#label> ?label . " +
-                "  } " +
+                "} " +
                 "  OPTIONAL{ " +
                 "    <" + uri + ">  foaf:isPrimaryTopicOf ?wikilink . " +
-                "  } " +
+              //  "  FILTER( lang(?wikilink)=\"" + language + "\" )" +
+                "} " +
+                "  FILTER( lang(?label)=\"" + language + "\" || lang(?label)=\"\")" +
+
                 "} ";
 
         System.out.println("music brainz sparql Label : "+res);
