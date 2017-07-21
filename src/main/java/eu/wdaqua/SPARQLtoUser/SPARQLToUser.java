@@ -25,7 +25,6 @@ public class SPARQLToUser {
     private String kb;
     private String ep;
     private String interpretation;
-
     public static String newline = System.getProperty("line.separator");
     String result;
     int goCount = 0;
@@ -67,7 +66,7 @@ public class SPARQLToUser {
 
 
         ArrayList <String> prefx=new ArrayList<>();
-        prefx.add(null);
+        prefx.add(null); //stores the beginning of the interpretation, we iterate over the triples and fill this for the first triple and do not change it for subsequent triples
         prefx.add("");
         int dir=0;
         String aggregIntroduce = null;
@@ -242,9 +241,11 @@ public class SPARQLToUser {
         return str;
     }
 
+    //Retrives the label of the predicate
     public String writePredicate(TriplePath triple, String strq, String l, String k, List<String> vars, String ep, org.apache.jena.query.Query q) {
 
         String res = "";
+        //Check if the predicate is a uri or a variable
         if (triple.getPredicate().isURI()) {
             ArrayList<String> labP = label.getLabel(replaceProp(triple.getPredicate().toString()), l, k, ep);
             // for the predicate we don't need description So we put just the label
@@ -254,7 +255,7 @@ public class SPARQLToUser {
             } else {
                 logger.info("there is no label for this uri !!" + replaceProp(triple.getPredicate().toString()));
             }
-
+        //write the label of all possible predicates, i.e. screenwriter, cast member, director, producer
         } else if (triple.getPredicate().isVariable()) {
             ArrayList<String> gAlt = null;
             String s = "SELECT DISTINCT ";
@@ -285,6 +286,7 @@ public class SPARQLToUser {
         return res;
     }
 
+    //Retrives the label of the subject
     public String writeSubject(TriplePath triple, String strq, String l, String k) {
         String res="";
         String ss="";
@@ -302,6 +304,7 @@ public class SPARQLToUser {
         return res;
     }
 
+    //Retrives the label of the Object
     public String writeObject(TriplePath triple, String strq, String l, String k) {
         String res = "";
         String so = "";
