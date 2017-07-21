@@ -7,9 +7,9 @@ import java.util.ArrayList;
 /**
  * Created by dryous on 10/07/2017.
  */
-public class musicbrainz extends KnowledgeBase  {
+public class Musicbrainz extends KnowledgeBase  {
 
-    public musicbrainz(String endpoint){
+    public Musicbrainz(String endpoint){
 
     }
 
@@ -32,10 +32,6 @@ public class musicbrainz extends KnowledgeBase  {
                 "  OPTIONAL{ " +
                 "    <" + uri + ">  <http://www.w3.org/2000/01/rdf-schema#label> ?label . " +
                 "} " +
-                "  OPTIONAL{ " +
-                "    <" + uri + ">  foaf:isPrimaryTopicOf ?wikilink . " +
-              //  "  FILTER( lang(?wikilink)=\"" + language + "\" )" +
-                "} " +
                 "  FILTER( lang(?label)=\"" + language + "\" || lang(?label)=\"\")" +
 
                 "} ";
@@ -46,9 +42,6 @@ public class musicbrainz extends KnowledgeBase  {
         while (result.hasNext()) {
             QuerySolution rsnext = result.next();
             labels.add(rsnext.getLiteral("label").getLexicalForm().toString());
-            if (rsnext.getLiteral("x") != null) {
-            labels.add(rsnext.getLiteral("wikilink").getLexicalForm().toString());
-            }
         }
         return labels;
     }
