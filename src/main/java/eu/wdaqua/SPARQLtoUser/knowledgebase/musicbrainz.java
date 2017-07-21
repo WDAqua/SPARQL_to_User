@@ -40,16 +40,14 @@ public class musicbrainz extends KnowledgeBase  {
 
                 "} ";
 
-        System.out.println("music brainz sparql Label : "+res);
         Query query1 = QueryFactory.create(res);
         QueryExecution qExe = QueryExecutionFactory.sparqlService(ep, query1);
         ResultSet result = qExe.execSelect();
         while (result.hasNext()) {
             QuerySolution rsnext = result.next();
             labels.add(rsnext.getLiteral("label").getLexicalForm().toString());
-            System.out.println(rsnext.getLiteral("label").getLexicalForm().toString());
             if (rsnext.getLiteral("x") != null) {
-                labels.add(rsnext.getLiteral("wikilink").getLexicalForm().toString());
+            labels.add(rsnext.getLiteral("wikilink").getLexicalForm().toString());
             }
         }
         return labels;

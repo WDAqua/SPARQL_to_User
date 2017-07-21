@@ -26,7 +26,6 @@ public class Dbpedia extends KnowledgeBase {
                     + " <" + uri + "> rdfs:label ?o . "
                     + "  FILTER( lang(?o)=\"" + language + "\" )"
                     + "} limit 20 ";
-            System.out.println(" i am the query get Label from dbpedia " + res);
             Query query1 = QueryFactory.create(res);
             QueryExecution qExe = QueryExecutionFactory.sparqlService(ep, query1);
             ResultSet result = qExe.execSelect();
@@ -34,7 +33,6 @@ public class Dbpedia extends KnowledgeBase {
                 QuerySolution rsnext = result.next();
                 labels.add(rsnext.getLiteral("o").getLexicalForm().toString());
             }
-            System.out.println(" i am the result get Label from dbpedia " + labels);
 
             return labels;
         } else {

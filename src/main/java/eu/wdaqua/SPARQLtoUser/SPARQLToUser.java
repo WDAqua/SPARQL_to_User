@@ -103,7 +103,6 @@ public class SPARQLToUser {
                 if (dir == -1) {
                     aggregIntroduce = "the most (";
                     prefx.add("the most (");
-                    System.out.println("THE MOST AAA");
                 }
                 else if (dir == 1) {
                     aggregIntroduce = "the least (";
@@ -115,6 +114,7 @@ public class SPARQLToUser {
                     prefx.add("how many (");
                 }
             }
+
             if (p.getQuery().hasAggregators() || p.getQuery().hasOrderBy()) {
                 result = aggregIntroduce;
             }
@@ -122,70 +122,75 @@ public class SPARQLToUser {
                 result = "Check (";
                 prefx.add("Check (");
             }
+
             while (triples.hasNext()) {
 
                 // ...and grab the subject
                 TriplePath triple = triples.next();
                 if (triple.isTriple()) {
+
+                    String wp = writePredicate(triple, strq, l, k, variables, ep, p.getQuery());
+                    String ws = writeSubject(triple, strq, l, k);
+                    String wo = writeObject(triple, strq, l, k);
+
                     if (result != null && !p.getQuery().isAskType() && !p.getQuery().hasAggregators() && !p.getQuery().hasOrderBy()) {
                         result += newline;
                     }
                     if (p.getQuery().isSelectType()) {
-                        if (!prefx.contains(result) && writePredicate(triple, strq, l, k, variables, ep, p.getQuery())!="")
+                        if (!prefx.contains(result) && wp!="")
                             result += " / ";
-                        System.out.println("This  is your search variables: "+ variables);
-
-                        if (writePredicate(triple, strq, l, k, variables, ep, p.getQuery())!=null) {
-                            result += writePredicate(triple, strq, l, k, variables, ep, p.getQuery());
+                        if (wp!=null) {
+                            result += wp;
                         }
                         if (triple.getSubject().isURI()) {
-                            if (!prefx.contains(result) && writeSubject(triple, strq, l, k)!=null) {
+
+                            if (!prefx.contains(result) && ws!=null) {
                                 result += " / ";
                             }
-                            result += writeSubject(triple, strq, l, k);
+                            result += ws;
                         }
                         if (triple.getObject().isURI()) {
-                            if (!prefx.contains(result) && writeObject(triple, strq, l, k)!=null) {
+                            if (!prefx.contains(result) && wo!=null) {
                                 result += " / ";
                             }
-                            result += writeObject(triple, strq, l, k);
+                            result += wo;
                         }
                     } else if (p.getQuery().isAskType()) {
 
                         if (triple.getSubject().isURI() && triple.getObject().isURI()) {
 
                             if (triple.getSubject().isURI()) {
-                                result += writeSubject(triple, strq, l, k);
+                                result += ws;
                             }
                             if ((triple.getPredicate().isURI()) || (triple.getPredicate().isVariable())) {
-                                if (!prefx.contains(result) && writePredicate(triple, strq, l, k, variables, ep, p.getQuery())!="") {
+                                if (!prefx.contains(result) && wp!="") {
                                     result += " / ";
                                 }
-                                result += writePredicate(triple, strq, l, k, variables, ep, p.getQuery());
+                                result += wp;
                             }
-                            if (!prefx.contains(result) && writeObject(triple, strq, l, k)!=null) {
+                            if (!prefx.contains(result) && wo!=null) {
                                 result += " / ";
                             }
                             if (triple.getObject().isURI()) {
-                                result += writeObject(triple, strq, l, k);
+                                result += wo;
                             }
                         } else {
                             if (triple.getSubject().isURI()) {
-                                result += writeSubject(triple, strq, l, k);
+                                result +=ws;
                             }
                             if (triple.getObject().isURI()) {
-                                if (!prefx.contains(result) && writeObject(triple, strq, l, k)!="") {
+                                if (!prefx.contains(result) && wo!="") {
                                     result += " / ";
                                 }
-                                result += writeObject(triple, strq, l, k);
+                                result += wo;
                             }
 
                             if ((triple.getPredicate().isURI()) || (triple.getPredicate().isVariable())) {
 
-                                if (!prefx.contains(result) && writePredicate(triple, strq, l, k, variables, ep, p.getQuery())!="") {
+                                if (!prefx.contains(result) && wp!="") {
                                     result += " / ";
                                 }
-                                result += writePredicate(triple, strq, l, k, variables, ep, p.getQuery());
+                                result += wp;
                             }
                         }
                     }
@@ -252,7 +257,6 @@ public class SPARQLToUser {
 
         } else if (triple.getPredicate().isVariable()) {
             ArrayList<String> gAlt = null;
-            //        System.out.println("query get alternative"+ strq.replaceFirst(vars.get(0), triple.getPredicate().toString().replace("?", "")));
             String s = "SELECT DISTINCT ";
             s+= triple.getPredicate().toString();
             s+= " WHERE ";
@@ -295,7 +299,6 @@ public class SPARQLToUser {
         if (ss != null) {
             res += ss;
         }
-        System.out.println("WRITE SUBJECT"+res);
         return res;
     }
 
@@ -311,7 +314,6 @@ public class SPARQLToUser {
             so += " (" + retress(labO.get(1)) + ") ";
         }
         res += so;
-
         return res;
     }
 }

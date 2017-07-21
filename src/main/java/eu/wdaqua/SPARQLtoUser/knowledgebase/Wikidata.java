@@ -25,15 +25,12 @@ public class Wikidata extends KnowledgeBase {
                 + "  OPTIONAL { <" + uri + ">  schema:description ?x FILTER( lang(?x)=\"" + language + "\" )} . "
                 + "  FILTER( lang(?o)=\"" + language + "\" )"
                 + "} limit 20 ";
-        System.out.println("RESRESRESRESRES : "+res);
         Query query1 = QueryFactory.create(res);
         QueryExecution qExe = QueryExecutionFactory.sparqlService(ep, query1);
-        System.out.println("EPEPEPEPEPEPEPEPEP : "+ep);
         ResultSet result = qExe.execSelect();
         while (result.hasNext()) {
             QuerySolution rsnext = result.next();
             labels.add(rsnext.getLiteral("o").getLexicalForm().toString());
-            System.out.println(rsnext.getLiteral("o").getLexicalForm().toString());
             if (rsnext.getLiteral("x") != null) {
                 labels.add(rsnext.getLiteral("x").getLexicalForm().toString());
             }
@@ -46,8 +43,6 @@ public class Wikidata extends KnowledgeBase {
     public ArrayList<String> getAlternative(String res, String predicate, String language, String kb, String ep) {
 
         ArrayList<String> altern = new ArrayList<>();
-        System.out.println("This  is your Predicate variable: "+ predicate);
-
         Query query1 = QueryFactory.create(res);
         QueryExecution qExe = QueryExecutionFactory.sparqlService(ep, query1);
         ResultSet result;
