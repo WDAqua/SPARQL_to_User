@@ -25,11 +25,13 @@ public class WebController {
                                      @RequestParam(value="endpoint", defaultValue = "https://dbpedia.org/sparq") String endpoint) {
             if (kb.contains("wikidata")){
                 endpoint = "https://query.wikidata.org/sparql";
-            }else if (kb.contains("dbpedia")){
+            } else if (kb.contains("dbpedia")){
                 endpoint = "https://dbpedia.org/sparql";
-            }else if (kb.contains("musicbrainz")){
+            } else if (kb.contains("musicbrainz")){
                 endpoint = "http://wdaqua.univ-st-etienne.fr/hdt-endpoint/musicbrainz/sparql";
-            }else {
+            }  else if (kb.contains("dblp")){
+                endpoint = "http://wdaqua.univ-st-etienne.fr/hdt-endpoint/dblp/sparql";
+            } else {
                 logger.info("The endpoint is not wikidata nor dbpedia neither musicbrainz");
             }
         logger.info("ENDPOINT: ",endpoint);

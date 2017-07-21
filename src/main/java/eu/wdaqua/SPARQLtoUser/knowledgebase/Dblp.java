@@ -5,35 +5,25 @@ import org.apache.jena.query.*;
 import java.util.ArrayList;
 
 /**
- * Created by dryous on 10/07/2017.
+ * Created by Dennis on 21/07/2017.
  */
-public class Musicbrainz extends KnowledgeBase  {
+public class Dblp extends KnowledgeBase  {
 
-    public Musicbrainz(String endpoint){
+    public Dblp(String endpoint){
 
     }
 
     @Override
     public ArrayList<String> getLabel(String uri, String language, String kb, String ep) {
         ArrayList<String> labels = new ArrayList<>();
-        String res
-
-                = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> "+
-                "SELECT ?label where { " +
+        String res =
+                "SELECT ?label  where { " +
                 "  OPTIONAL{ " +
                 //"<" + value + "> rdfs:label ?label . FILTER (lang(?label)=\""+ lang +"\" || lang(?label)=\"en\" || lang(?label)=\"de\" || lang(?label)=\"fr\" || lang(?label)=\"it\")" +
                 "    <" + uri + "> foaf:name ?label . " +
            //     "  FILTER( lang(?label)=\"" + language + "\" )" +
                 "} " +
-                "  OPTIONAL{ " +
-                "    <" + uri + ">  <http://purl.org/dc/elements/1.1/title> ?label . " +
-            //   "  FILTER( lang(?label)=\"" + language + "\" )" +
-                "} " +
-                "  OPTIONAL{ " +
-                "    <" + uri + ">  <http://www.w3.org/2000/01/rdf-schema#label> ?label . " +
-                "} " +
                 "  FILTER( lang(?label)=\"" + language + "\" || lang(?label)=\"\")" +
-
                 "} ";
 
         Query query1 = QueryFactory.create(res);
