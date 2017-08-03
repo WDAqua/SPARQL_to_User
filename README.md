@@ -1,4 +1,6 @@
 # SPARQLtoUser
+
+##Intro
 SPARQLtoUser is a web service that translates a SPARQL query into a representation that is thought for end users. For example the SPARQL query over wikidata:
 
 SELECT DISTINCT ?x 
@@ -26,7 +28,7 @@ instance of / film (sequence of images that giv...)
 i.e. the properties are expanded.
 
 
-# To start
+## To start
 Tu run the package do:
 
 mvn clean package
@@ -35,7 +37,7 @@ java -jar target/SparqlToUser-0.1.jar
 The service will then be available under localhost:1920/sparqltouser. Or check out our online available webservice at:
 https://wdaqua-sparqltouser.univ-st-etienne.fr/sparqltouser
 
-# API
+## API
 GET or POST with parameters:
 - sparql : the SPARQL query you want to translate
 - lang : the language you would like to translate
@@ -45,5 +47,5 @@ example:
 
 curl --data-urlencode "sparql=SELECT DISTINCT ?x WHERE {   <http://www.wikidata.org/entitt 1000" --data-urlencode "lang=en" --data-urlencode "kb=wikidata" https://wdaqua-sparqltouser.univ-st-etienne.fr/sparqltouser
 
-# Dig into the code
+## Dig into the code
 The code is entirely written in Java. We use mainly the Jena Apache Library (https://jena.apache.org/documentation/query/) and Spring (https://spring.io/guides/gs/rest-service/)
