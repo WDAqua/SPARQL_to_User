@@ -1,6 +1,6 @@
 # SPARQLtoUser
 
-##Intro
+## Intro
 SPARQLtoUser is a web service that translates a SPARQL query into a representation that is thought for end users. For example the SPARQL query over wikidata:
 
 SELECT DISTINCT ?x 
