@@ -1,11 +1,49 @@
-# SPARQL_to_User
-SparqlToUser est un web service prenant en paramètres le sparql query ,la langue et le knowlehdge base et nous fournit en retour un  JSon contenant l'interpretation en langage naturel.
+# SPARQLtoUser
+SPARQLtoUser is a web service that translates a SPARQL query into a representation that is thought for end users. For example the SPARQL query over wikidata:
+
+SELECT DISTINCT ?x 
+WHERE { 
+  <http://www.wikidata.org/entity/Q20034> <http://www.wikidata.org/prop/direct/P527> ?x .
+} limit 1000
+
+is transformed into:
+
+has part / lasagne (flat rectangle-shaped pasta...) 
+
+Or the query 
+
+SELECT DISTINCT ?x 
+WHERE { 
+  ?x ?p1 <http://www.wikidata.org/entity/Q38222> . 
+  ?x ?p2 <http://www.wikidata.org/entity/Q11424> . 
+} limit 1000
+
+is transormed into:
+
+characters, executive producer, screenwriter, director, producer / George Lucas (American film producer) 
+instance of / film (sequence of images that giv...) 
+
+i.e. the properties are expanded.
 
 
-# Pour Commencer 
-après avoir lancé le webservice allez dans votre navigateur et envoyez cette requete localhost:1920/sparqltouser?sparql=""lang=""kb="" en indiquant le sparql langue et kb souhaités
-vous pouvez aussi modifier dans le controleur en mettant votre sparql la langue et le kb dans les valeur par defaut.
+# To start
+Tu run the package do:
 
-# Savoir Plus
-jena apache: https://jena.apache.org/documentation/query/.
-RESTful Web service avec spring: https://spring.io/guides/gs/rest-service/.
+mvn clean package
+java -jar target/SparqlToUser-0.1.jar
+
+The service will then be available under localhost:1920/sparqltouser. Or check out our online available webservice at:
+https://wdaqua-sparqltouser.univ-st-etienne.fr/sparqltouser
+
+# API
+GET or POST with parameters:
+- sparql : the SPARQL query you want to translate
+- lang : the language you would like to translate
+- kb: the kb for which the SPARQL is written (dbpedia, wikidata, musicbrainz and dblp are supported)
+
+example: 
+
+curl --data-urlencode "sparql=SELECT DISTINCT ?x WHERE {   <http://www.wikidata.org/entitt 1000" --data-urlencode "lang=en" --data-urlencode "kb=wikidata" https://wdaqua-sparqltouser.univ-st-etienne.fr/sparqltouser
+
+# Dig into the code
+The code is entirely written in Java. We use mainly the Jena Apache Library (https://jena.apache.org/documentation/query/) and Spring (https://spring.io/guides/gs/rest-service/)
