@@ -22,7 +22,7 @@ public class WebController {
     public SPARQLToUser sparqlToUser(@RequestParam(value="sparql", defaultValue = "SELECT DISTINCT ?x WHERE { <http://dbpedia.org/resource/Eritrea> <http://dbpedia.org/ontology/leader> ?x } limit 1000") String sparql,
                                      @RequestParam(value="lang", defaultValue = "en") String lang,
                                      @RequestParam(value="kb", defaultValue = "dbpedia") String kb,
-                                     @RequestParam(value="endpoint", defaultValue = "https://dbpedia.org/sparq") String endpoint) {
+                                     @RequestParam(value="endpoint", defaultValue = "https://dbpedia.org/sparql") String endpoint) {
             if (kb.contains("wikidata")){
                 endpoint = "https://query.wikidata.org/sparql";
             } else if (kb.contains("dbpedia")){
@@ -31,6 +31,8 @@ public class WebController {
                 endpoint = "http://wdaqua.univ-st-etienne.fr/hdt-endpoint/musicbrainz/sparql";
             }  else if (kb.contains("dblp")){
                 endpoint = "http://wdaqua.univ-st-etienne.fr/hdt-endpoint/dblp/sparql";
+            }  else if (kb.contains("freebase")){
+                endpoint = "http://wdaqua.univ-st-etienne.fr/hdt-endpoint/freebase_big/sparql";
             } else {
                 logger.info("The endpoint is not wikidata nor dbpedia neither musicbrainz");
             }
