@@ -31,6 +31,8 @@ public class WebController {
                 endpoint = "http://wdaqua.univ-st-etienne.fr/hdt-endpoint/musicbrainz/sparql";
             }  else if (kb.contains("dblp")){
                 endpoint = "http://wdaqua.univ-st-etienne.fr/hdt-endpoint/dblp/sparql";
+            } else if (kb.contains("scigraph")){
+                endpoint = "http://wdaqua.univ-st-etienne.fr/hdt-endpoint/scigraph/sparql";
             } else {
                 logger.info("The endpoint is not wikidata nor dbpedia neither musicbrainz");
             }

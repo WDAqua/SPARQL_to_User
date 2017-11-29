@@ -3,6 +3,7 @@ package eu.wdaqua.SPARQLtoUser;
 import eu.wdaqua.SPARQLtoUser.knowledgebase.Dbpedia;
 import eu.wdaqua.SPARQLtoUser.knowledgebase.KnowledgeBase;
 
+import eu.wdaqua.SPARQLtoUser.knowledgebase.Scigraph;
 import eu.wdaqua.SPARQLtoUser.knowledgebase.Wikidata;
 import eu.wdaqua.SPARQLtoUser.knowledgebase.Musicbrainz;
 import org.slf4j.Logger;
@@ -29,6 +30,9 @@ public class Label {
         } else if (k.contains("Musicbrainz")) {
             KnowledgeBase kbmusicbrainz = new Musicbrainz(endpoint);
             lab=kbmusicbrainz.getLabel(s, l, k, endpoint);
+        } else if (k.contains("scigraph")) {
+            KnowledgeBase kbscigraph = new Scigraph(endpoint);
+            lab=kbscigraph.getLabel(s, l, k, endpoint);
         } else {
             logger.info("not dbpedia && not wikidata");
             lab=null;
@@ -55,7 +59,7 @@ public class Label {
             logger.info("In GetAltern dbPedia ===+++===+++===+++===+++===+++===+++====>> ", altern);
 
 
-        }else if (k.contains("Musicbrainz")){
+        }else if (k.contains("musicbrainz")){
         KnowledgeBase kbmusicbrainzAltern = new Musicbrainz(endpoint);
         altern=kbmusicbrainzAltern.getAlternative(res, p, l, k, endpoint);
         logger.info("In GetAltern musicBranz===+++===+++===+++===+++===+++===+++====>> ");
