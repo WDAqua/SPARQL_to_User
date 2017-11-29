@@ -6,6 +6,8 @@ import eu.wdaqua.SPARQLtoUser.knowledgebase.KnowledgeBase;
 import eu.wdaqua.SPARQLtoUser.knowledgebase.Scigraph;
 import eu.wdaqua.SPARQLtoUser.knowledgebase.Wikidata;
 import eu.wdaqua.SPARQLtoUser.knowledgebase.Musicbrainz;
+import eu.wdaqua.SPARQLtoUser.knowledgebase.Dblp;
+import eu.wdaqua.SPARQLtoUser.knowledgebase.Freebase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,12 +29,18 @@ public class Label {
         } else if (k.contains("dbpedia")) {
             KnowledgeBase kbdbpeLabel = new Dbpedia(endpoint);
             lab=kbdbpeLabel.getLabel(s, l, k, endpoint);
-        } else if (k.contains("Musicbrainz")) {
+        } else if (k.contains("musicbrainz")) {
             KnowledgeBase kbmusicbrainz = new Musicbrainz(endpoint);
             lab=kbmusicbrainz.getLabel(s, l, k, endpoint);
         } else if (k.contains("scigraph")) {
             KnowledgeBase kbscigraph = new Scigraph(endpoint);
             lab=kbscigraph.getLabel(s, l, k, endpoint);
+        } else if (k.contains("dblp")) {
+            KnowledgeBase dblp = new Dblp(endpoint);
+            lab=dblp.getLabel(s, l, k, endpoint);
+        } else if (k.contains("freebase")) {
+            KnowledgeBase freebase = new Freebase(endpoint);
+            lab=freebase.getLabel(s, l, k, endpoint);
         } else {
             logger.info("not dbpedia && not wikidata");
             lab=null;

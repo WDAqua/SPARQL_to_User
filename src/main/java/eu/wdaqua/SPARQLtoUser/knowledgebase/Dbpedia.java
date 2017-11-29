@@ -17,7 +17,7 @@ public class Dbpedia extends KnowledgeBase {
 
     @Override
     public ArrayList<String> getLabel(String uri, String language, String kb, String ep) {
-        if (uri.contains("dbpedia")) {
+        //if (uri.contains("dbpedia")) {
             ArrayList<String> labels = new ArrayList<>();
             String res
                     = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> "
@@ -35,9 +35,9 @@ public class Dbpedia extends KnowledgeBase {
             }
 
             return labels;
-        } else {
-            return null;
-        }
+        //} else {
+        //    return null;
+        //}
     }
     @Override
     public ArrayList<String> getAlternative(String res, String predicate, String language, String kb, String ep) {

@@ -19,9 +19,7 @@ public class Dblp extends KnowledgeBase  {
         String res =
                 "SELECT ?label  where { " +
                 "  OPTIONAL{ " +
-                //"<" + value + "> rdfs:label ?label . FILTER (lang(?label)=\""+ lang +"\" || lang(?label)=\"en\" || lang(?label)=\"de\" || lang(?label)=\"fr\" || lang(?label)=\"it\")" +
-                "    <" + uri + "> foaf:name ?label . " +
-           //     "  FILTER( lang(?label)=\"" + language + "\" )" +
+                "     <" + uri + "> <http://www.w3.org/2000/01/rdf-schema#label> ?label . " +
                 "} " +
                 "  FILTER( lang(?label)=\"" + language + "\" || lang(?label)=\"\")" +
                 "} ";
