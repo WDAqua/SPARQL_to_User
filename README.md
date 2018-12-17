@@ -1,5 +1,7 @@
 ## SPARQLtoUser
 
+## Note: This repository is now mantained by QAnswer, it can be found [here](https://github.com/QAnswer/SPARQL_to_User).
+
 ### Intro
 SPARQLtoUser is a web service that translates a SPARQL query into a representation that is thought for end users. For example the SPARQL query over wikidata:
 
@@ -53,6 +55,8 @@ returns:
 
 ## Dig into the code
 The code is entirely written in Java. We use mainly the Jena Apache Library (https://jena.apache.org/documentation/query/) and Spring (https://spring.io/guides/gs/rest-service/)
+
+## Note: This repository is now mantained by QAnswer, it can be found [here](https://github.com/QAnswer/SPARQL_to_User).
 
 ---
 Made with ♥ by Youssef Dridi and Dennis Diefenbach (www.wdaqua.eu)
