@@ -136,17 +136,17 @@ public class SPARQLToUser {
                         result += newline;
                     }
                     if (p.getQuery().isSelectType()) {
-                        if (!prefx.contains(result) && wp!="")
-                            result += " / ";
-                        if (wp!=null) {
-                            result += wp;
-                        }
                         if (triple.getSubject().isURI()) {
 
                             if (!prefx.contains(result) && ws!=null) {
                                 result += " / ";
                             }
                             result += ws;
+                        }
+                        if (!prefx.contains(result) && wp!="")
+                            result += " / ";
+                        if (wp!=null) {
+                            result += wp;
                         }
                         if (triple.getObject().isURI()) {
                             if (!prefx.contains(result) && wo!=null) {
@@ -213,8 +213,8 @@ public class SPARQLToUser {
             result = result.replaceAll("null", "");
             result = result.replaceAll("/null/", "/");
             result = result.replaceAll("null/", "");
-            result = result.replaceAll("/ instance of /", "/");
-            result = result.replaceAll("instance of /", "");
+            //result = result.replaceAll("/ instance of /", "/");
+            //result = result.replaceAll("instance of /", "");
             result = result.replaceAll("Link from a Wikipage to ano..., ", "");
             result = result.replaceAll("Link from a Wikipage to ano... /", "");
 
@@ -229,8 +229,8 @@ public class SPARQLToUser {
     }
 
     public String retress(String str) {
-        if (str.length() > 30) {
-            str = str.substring(0, 27) + "...";
+        if (str.length() > 40) {
+            str = str.substring(0, 37) + "...";
         }
         return str;
     }

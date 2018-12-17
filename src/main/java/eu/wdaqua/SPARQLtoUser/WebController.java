@@ -24,7 +24,7 @@ public class WebController {
                                      @RequestParam(value="kb", defaultValue = "dbpedia") String kb,
                                      @RequestParam(value="endpoint", defaultValue = "https://dbpedia.org/sparql") String endpoint) {
             if (kb.contains("wikidata")){
-                endpoint = "https://query.wikidata.org/sparql";
+                endpoint = "http://qanswer-hdt-endpoint.univ-st-etienne.fr/wikidata/sparql";
             } else if (kb.contains("dbpedia")){
                 endpoint = "https://dbpedia.org/sparql";
             } else if (kb.contains("musicbrainz")){
