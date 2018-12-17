@@ -28,13 +28,13 @@ public class WebController {
             } else if (kb.contains("dbpedia")){
                 endpoint = "https://dbpedia.org/sparql";
             } else if (kb.contains("musicbrainz")){
-                endpoint = "http://wdaqua.univ-st-etienne.fr/hdt-endpoint/musicbrainz/sparql";
+                endpoint = "http://qanswer-hdt-endpoint.univ-st-etienne.fr/musicbrainz/sparql";
             }  else if (kb.contains("dblp")){
-                endpoint = "http://wdaqua.univ-st-etienne.fr/hdt-endpoint/dblp/sparql";
+                endpoint = "http://qanswer-hdt-endpoint.univ-st-etienne.fr/dblp/sparql";
             } else if (kb.contains("scigraph")){
-                endpoint = "http://wdaqua.univ-st-etienne.fr/hdt-endpoint/scigraph/sparql";
+                endpoint = "http://qanswer-hdt-endpoint.univ-st-etienne.fr/scigraph/sparql";
             }  else if (kb.contains("freebase")){
-                endpoint = "http://wdaqua.univ-st-etienne.fr/hdt-endpoint/freebase_big/sparql";
+                endpoint = "http://qanswer-hdt-endpoint.univ-st-etienne.fr/freebase_big/sparql";
             } else {
                 logger.info("The endpoint is not wikidata nor dbpedia neither musicbrainz");
             }
